@@ -184,6 +184,23 @@ function broadcastState(room) {
 
 // ─── KUTTI DISTRIBUTION LOGIC ────────────────────────────
 
+function findKuttiGivers(kuttiRoundCards) {
+  // A player is a GIVER if another player drew a card exactly 1 rank HIGHER than theirs
+  const entries = Array.from(kuttiRoundCards.entries()); // [playerId, card]
+  const giverIds = [];
+
+  for (const [giverId, giverCard] of entries) {
+    for (const [receiverId, receiverCard] of entries) {
+      if (giverId === receiverId) continue;
+      // If receiver's card rank = giver's card rank + 1 → giver must pass
+      if (receiverCard.rank === giverCard.rank + 1 && !giverIds.includes(giverId)) {
+        giverIds.push(giverId);
+      }
+    }
+  }
+  return giverIds;
+}
+
 function executeKuttiDraw(room) {
   const deck = room.drawDeck;
   room.kuttiRoundCards = new Map();
@@ -194,36 +211,23 @@ function executeKuttiDraw(room) {
     room.kuttiRoundCards.set(player.id, card);
   }
 
-  // Pre-calculate if any transfers are needed
-  const entries = Array.from(room.kuttiRoundCards.entries());
-  const giverIds = new Set();
-  for (let i = 0; i < entries.length; i++) {
-    for (let j = 0; j < entries.length; j++) {
-      if (i === j) continue;
-      const [, cardHigh] = entries[i];
-      const [idLow, cardLow] = entries[j];
-      if (cardHigh.rank === cardLow.rank + 1 && !giverIds.has(idLow)) {
-        giverIds.add(idLow);
-      }
-    }
-  }
-
+  const giverIds = findKuttiGivers(room.kuttiRoundCards);
   room.phase = 'kutti-reveal';
-  room.pendingPassIds = [...giverIds]; // store as plain array
+  room.pendingPassIds = giverIds;
 
-  if (giverIds.size === 0) {
-    // No transfers needed — auto-resolve after 3 seconds
-    room.message = `Kutti Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: Cards revealed! No passes needed, resolving...`;
+  console.log('Kutti reveal - giverIds:', giverIds, 'cards:', [...room.kuttiRoundCards.entries()].map(([id,c]) => `P${id}:${c.rank}`));
+
+  if (giverIds.length === 0) {
+    room.message = `Kutti Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: No passes needed, resolving in 3s...`;
     broadcastState(room);
     setTimeout(() => {
       if (room.phase === 'kutti-reveal') resolveKuttiTransfers(room);
     }, 3000);
   } else {
-    // Transfers needed — show pass button to givers, auto-resolve after 10s as fallback
-    const giverNames = [...giverIds].map(id => room.players.find(p => p.id === id)?.name).join(', ');
+    const giverNames = giverIds.map(id => room.players.find(p => p.id === id)?.name).join(', ');
     room.message = `Kutti Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: ${giverNames} must pass their card!`;
     broadcastState(room);
-    // Fallback: if giver doesn't click within 10s, auto-resolve
+    // Auto-resolve fallback after 10s
     setTimeout(() => {
       if (room.phase === 'kutti-reveal') resolveKuttiTransfers(room);
     }, 10000);
@@ -233,24 +237,22 @@ function executeKuttiDraw(room) {
 function resolveKuttiTransfers(room) {
   const roundCards = room.kuttiRoundCards;
   const transfers = [];
-  const entries = Array.from(roundCards.entries());
-  const takenCards = new Set();
+  const takenGivers = new Set();
 
-  for (let i = 0; i < entries.length; i++) {
-    for (let j = 0; j < entries.length; j++) {
-      if (i === j) continue;
-      const [idHigh, cardHigh] = entries[i];
-      const [idLow, cardLow] = entries[j];
-      if (cardHigh.rank === cardLow.rank + 1 && !takenCards.has(idLow)) {
-        transfers.push({ fromPlayerId: idLow, toPlayerId: idHigh, card: cardLow });
-        takenCards.add(idLow);
+  // For each giver-receiver pair: receiver.rank === giver.rank + 1
+  for (const [giverId, giverCard] of roundCards) {
+    for (const [receiverId, receiverCard] of roundCards) {
+      if (giverId === receiverId) continue;
+      if (receiverCard.rank === giverCard.rank + 1 && !takenGivers.has(giverId)) {
+        transfers.push({ fromPlayerId: giverId, toPlayerId: receiverId, card: giverCard });
+        takenGivers.add(giverId);
       }
     }
   }
 
-  // Give each player their drawn card (if not taken)
+  // Give each player their drawn card (if not given away)
   for (const [playerId, card] of roundCards) {
-    if (!takenCards.has(playerId)) {
+    if (!takenGivers.has(playerId)) {
       const player = room.players.find(p => p.id === playerId);
       player.hand.push(card);
     }
