@@ -52,14 +52,15 @@
             }
           </div>
 
-          @if (isHost()) {
+          @if (isMustPass()) {
             <div class="kutti-actions">
-              <button class="kutti-btn resolve-btn" (click)="onResolveKutti()">
-                🔍 Resolve Kutti
+              <div class="pass-info">Your card will be passed! Confirm below.</div>
+              <button class="kutti-btn pass-btn" (click)="onPassKuttiCard()">
+                ↗️ Pass My Card
               </button>
             </div>
           } @else {
-            <div class="waiting-host">⏳ Waiting for host to resolve...</div>
+            <div class="waiting-host">⏳ Resolving in a moment...</div>
           }
         }
 
@@ -101,21 +102,7 @@
             </div>
           }
 
-          @if (isHost()) {
-            <div class="kutti-actions">
-              @if (hasMoreKuttiRounds) {
-                <button class="kutti-btn next-btn" (click)="onProceedFromKutti()">
-                  ➡️ Next Round
-                </button>
-              } @else {
-                <button class="kutti-btn start-playing-btn" (click)="onProceedFromKutti()">
-                  🎮 Start Playing!
-                </button>
-              }
-            </div>
-          } @else {
-            <div class="waiting-host">⏳ Waiting for host...</div>
-          }
+          <div class="waiting-host">⏳ Next round starting soon...</div>
         }
       </div>
     </div>

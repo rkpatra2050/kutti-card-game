@@ -194,8 +194,15 @@ function executeKuttiDraw(room) {
   }
 
   room.phase = 'kutti-reveal';
-  room.message = `Kutti Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: Cards revealed! Host clicks "Resolve Kutti" to check transfers.`;
+  room.message = `Kutti Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: Cards revealed! Check if you need to pass your card.`;
   broadcastState(room);
+
+  // Auto-resolve after 3 seconds if no transfers needed, else wait for passes
+  setTimeout(() => {
+    if (room.phase === 'kutti-reveal') {
+      resolveKuttiTransfers(room);
+    }
+  }, 3000);
 }
 
 function resolveKuttiTransfers(room) {
@@ -251,8 +258,24 @@ function resolveKuttiTransfers(room) {
   const moreRounds = room.drawDeck.length >= room.players.length && room.kuttiRoundNumber < room.kuttiTotalRounds;
   room.kuttiTransfers = transfers;
   room.phase = 'kutti-wait-next';
-  room.message = msg + (moreRounds ? '  👉 Host clicks "Next Round".' : '  👉 Host clicks "Start Playing!".');
+  room.message = msg + (moreRounds ? '  👉 Next round starting soon...' : '  👉 Starting game soon...');
   broadcastState(room);
+
+  // Auto-proceed to next round or playing phase after 3 seconds
+  setTimeout(() => {
+    if (room.phase !== 'kutti-wait-next') return;
+    if (moreRounds) {
+      room.kuttiRoundNumber++;
+      room.kuttiRoundCards = new Map();
+      room.kuttiTransfers = [];
+      room.phase = 'kutti-draw';
+      room.message = `Kutti Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: Drawing cards...`;
+      broadcastState(room);
+      setTimeout(() => executeKuttiDraw(room), 600);
+    } else {
+      startPlayingPhase(room);
+    }
+  }, 3000);
 }
 
 function startPlayingPhase(room) {

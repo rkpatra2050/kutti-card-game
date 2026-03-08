@@ -190,6 +190,10 @@ export class SocketService {
     this.socket?.emit('proceedFromKutti');
   }
 
+  passKuttiCard(): void {
+    this.socket?.emit('passKuttiCard');
+  }
+
   playCard(cardId: string): void {
     this.socket?.emit('playCard', { cardId });
   }

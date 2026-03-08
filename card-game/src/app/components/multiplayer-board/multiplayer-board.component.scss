@@ -150,14 +150,13 @@
   .arrow { color: rgba(255, 255, 255, 0.6); }
   .to { color: #4caf50; font-weight: 700; }
 }
-.kutti-actions { margin-top: 24px; display: flex; justify-content: center; gap: 16px; }
+.kutti-actions { margin-top: 24px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.pass-info { color: #ffd700; font-weight: 600; font-size: 1em; text-align: center; }
 .kutti-btn {
   padding: 14px 36px; font-size: 1.1em; font-weight: 700; border: none;
   border-radius: 14px; cursor: pointer; transition: all 0.3s ease;
   &:hover { transform: translateY(-2px); }
-  &.resolve-btn { background: linear-gradient(135deg, #42a5f5, #1e88e5); color: white; }
-  &.next-btn { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; }
-  &.start-playing-btn { background: linear-gradient(135deg, #66bb6a, #43a047); color: white; font-size: 1.2em; padding: 16px 44px; }
+  &.pass-btn { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; font-size: 1.2em; padding: 16px 44px; }
 }
 .waiting-host {
   color: rgba(255, 255, 255, 0.5);

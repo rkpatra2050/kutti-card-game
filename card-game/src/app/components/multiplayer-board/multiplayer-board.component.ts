@@ -91,6 +91,24 @@ export class MultiplayerBoardComponent {
     return this.kuttiTransfers.some((t: any) => t.toPlayerId === playerId);
   }
 
+  /** Returns true if the current player's drawn kutti card must be passed */
+  isMustPass(): boolean {
+    const me = this.myPlayer();
+    if (!me) return false;
+    const myCard = this.kuttiRoundCards[me.id];
+    if (!myCard) return false;
+    // Check if any other player has a card exactly 1 rank higher than mine
+    return this.players.some(p => {
+      if (p.isMe) return false;
+      const theirCard = this.kuttiRoundCards[p.id];
+      return theirCard && theirCard.rank === myCard.rank + 1;
+    });
+  }
+
+  onPassKuttiCard(): void {
+    this.socketService.passKuttiCard();
+  }
+
   getPlayerName(playerId: number): string {
     return this.players.find(p => p.id === playerId)?.name ?? `Player ${playerId + 1}`;
   }
