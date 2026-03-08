@@ -78,3 +78,17 @@
   font-style: italic;
   padding: 20px;
 }
+
+@media (max-width: 768px) {
+  .cards-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .card-slot {
+    margin-left: -28px;
+    flex-shrink: 0;
+  }
+}

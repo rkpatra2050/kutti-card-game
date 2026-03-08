@@ -419,8 +419,8 @@
     .player-name { font-size: 0.9em; }
     .card-count { font-size: 0.75em; }
   }
-  .card-slot { margin-left: -14px; }
-  .cards-row { padding: 2px 0; }
+  .card-slot { margin-left: -14px; flex-shrink: 0; }
+  .cards-row { padding: 2px 0; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
   .game-over-card { padding: 20px 14px; h2 { font-size: 1.4em; } }
   .result-banner { padding: 10px 12px; gap: 10px; .result-emoji { font-size: 1.6em; } .result-name { font-size: 1em; } }

@@ -137,3 +137,22 @@
     box-shadow: 0 0 25px rgba(255, 215, 0, 0.9);
   }
 }
+
+@media (max-width: 768px) {
+  .card {
+    width: 60px;
+    height: 90px;
+
+    .card-corner {
+      .rank { font-size: 10px; }
+      .suit { font-size: 9px; }
+    }
+
+    .card-center .suit-large { font-size: 22px; }
+
+    &.small {
+      width: 44px;
+      height: 66px;
+    }
+  }
+}
