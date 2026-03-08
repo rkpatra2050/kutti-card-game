@@ -1,9 +1,12 @@
-<div class="player-hand" [class.active-turn]="isCurrentTurn">
+<div class="player-hand" [class.active-turn]="isCurrentTurn" [class.finished]="player.isFinished">
   <div class="hand-label">
     <span class="player-name">{{ player.name }}</span>
     <span class="card-count">({{ player.hand.length }} cards)</span>
     @if (player.collectedCards.length > 0) {
       <span class="collected-count">📦 {{ player.collectedCards.length }} collected</span>
+    }
+    @if (player.isFinished) {
+      <span class="finished-badge">✅ Finished #{{ player.finishOrder }}</span>
     }
   </div>
   <div class="cards-row">
@@ -18,7 +21,13 @@
       </div>
     }
     @if (player.hand.length === 0) {
-      <div class="empty-hand">No cards left</div>
+      <div class="empty-hand">
+        @if (player.isFinished) {
+          🎉 No cards left — finished!
+        } @else {
+          No cards left
+        }
+      </div>
     }
   </div>
 </div>

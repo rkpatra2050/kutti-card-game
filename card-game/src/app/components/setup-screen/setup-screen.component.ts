@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 export class SetupScreenComponent {
   @Output() startGame = new EventEmitter<number>();
 
-  playerOptions = [3, 4, 5, 6];
+  playerOptions = [2, 3, 4, 5, 6];
   selectedPlayers = 4;
 
   onSelectPlayers(count: number): void {

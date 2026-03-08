@@ -81,18 +81,21 @@ export interface Player {
   collectedCards: Card[];
   isHuman: boolean;
   isActive: boolean;
+  isFinished: boolean;
+  finishOrder: number;
 }
 
-export interface TrickResult {
-  winner: number;
-  cards: PlayedCard[];
-  leadSuit: Suit;
+export interface KuttiTransfer {
+  fromPlayerId: number;
+  toPlayerId: number;
+  card: Card;
 }
 
 export enum GamePhase {
   Setup = 'setup',
-  InitialDraw = 'initial-draw',
-  Reveal = 'reveal',
+  KuttiDraw = 'kutti-draw',
+  KuttiReveal = 'kutti-reveal',
+  KuttiTransfer = 'kutti-transfer',
   Playing = 'playing',
   TrickComplete = 'trick-complete',
   GameOver = 'game-over',
@@ -106,10 +109,18 @@ export interface GameState {
   currentTrick: PlayedCard[];
   leadSuit: Suit | null;
   trickNumber: number;
-  totalTricks: number;
   message: string;
-  initialCards: Map<number, Card>;
+  // Kutti phase
+  drawDeck: Card[];
+  kuttiRoundCards: Map<number, Card>;
+  kuttiTransfers: KuttiTransfer[];
+  kuttiRoundNumber: number;
+  kuttiTotalRounds: number;
+  // General
   highlightedPlayerIndex: number;
+  finishedPlayers: number[];
+  winner: Player | null;
+  dock: Player | null;
 }
 
 export function createDeck(): Card[] {

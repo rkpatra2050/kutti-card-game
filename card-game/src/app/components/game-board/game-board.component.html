@@ -7,44 +7,76 @@
     </div>
     <div class="message-bar"
       [class.highlight]="phase() === GamePhase.TrickComplete || phase() === GamePhase.GameOver"
-      [class.reveal]="phase() === GamePhase.Reveal || phase() === GamePhase.InitialDraw">
+      [class.kutti]="isKuttiPhase">
       {{ message() }}
     </div>
     <button class="new-game-btn" (click)="onNewGame()">🔄 New Game</button>
   </div>
 
-  <!-- Reveal Phase Overlay -->
-  @if (phase() === GamePhase.InitialDraw || phase() === GamePhase.Reveal) {
-    <div class="reveal-overlay">
-      <div class="reveal-content">
-        <h2>🃏 Drawing Cards...</h2>
-        <p>Each player draws one card to decide who starts</p>
-        @if (phase() === GamePhase.Reveal) {
-          <div class="reveal-cards">
+  <!-- ═══ KUTTI DISTRIBUTION PHASE ═══ -->
+  @if (isKuttiPhase) {
+    <div class="kutti-overlay">
+      <div class="kutti-content">
+        <div class="kutti-header">
+          <h2>🎴 Kutti Distribution</h2>
+          <div class="kutti-progress">
+            <span>Round {{ kuttiRoundNumber() }} / {{ kuttiTotalRounds() }}</span>
+            <span class="deck-count">🃏 {{ drawDeckSize() }} cards left in deck</span>
+          </div>
+        </div>
+
+        <!-- Drawing Phase -->
+        @if (phase() === GamePhase.KuttiDraw) {
+          <div class="kutti-drawing">
+            <div class="dealing-icon">🎴</div>
+            <p>Each player draws a card...</p>
+          </div>
+        }
+
+        <!-- Reveal & Transfer Phase -->
+        @if (phase() === GamePhase.KuttiReveal || phase() === GamePhase.KuttiTransfer) {
+          <div class="kutti-cards-grid">
             @for (player of players(); track player.id) {
-              <div class="reveal-card-item"
-                [class.winner]="highlightedPlayerIndex() === player.id"
-                [style.animation-delay]="($index * 0.2) + 's'">
-                <div class="reveal-player-name">{{ player.name }}</div>
-                @if (getInitialCard(player.id); as card) {
+              <div class="kutti-card-item"
+                [class.giver]="isTransferGiver(player.id)"
+                [class.receiver]="isTransferReceiver(player.id)"
+                [style.animation-delay]="($index * 0.15) + 's'">
+                <div class="kutti-player-name">{{ player.name }}</div>
+                @if (getKuttiCard(player.id); as card) {
                   <app-card [card]="card" [faceUp]="true"></app-card>
                 }
-                @if (highlightedPlayerIndex() === player.id) {
-                  <div class="starts-badge">⭐ STARTS!</div>
+                <div class="kutti-hand-count">{{ player.hand.length }} cards in hand</div>
+                @if (isTransferGiver(player.id)) {
+                  <div class="transfer-badge give">↗ GIVES</div>
+                }
+                @if (isTransferReceiver(player.id)) {
+                  <div class="transfer-badge receive">↙ GETS</div>
                 }
               </div>
             }
           </div>
-        } @else {
-          <div class="dealing-animation">
-            <span class="dealing-icon">🎴</span>
-          </div>
+
+          <!-- Transfer Info -->
+          @if (phase() === GamePhase.KuttiTransfer && kuttiTransfers().length > 0) {
+            <div class="transfer-info">
+              <h4>🔄 Kutti Transfers:</h4>
+              @for (transfer of kuttiTransfers(); track $index) {
+                <div class="transfer-line">
+                  <span class="from">{{ players()[transfer.fromPlayerId].name }}</span>
+                  <span class="arrow">→ {{ getCardDisplay(transfer.card) }} →</span>
+                  <span class="to">{{ players()[transfer.toPlayerId].name }}</span>
+                  <span class="reason">(+1 rank higher)</span>
+                </div>
+              }
+            </div>
+          }
         }
       </div>
     </div>
   }
 
-  <div class="game-layout">
+  <!-- ═══ PLAYING PHASE ═══ -->
+  <div class="game-layout" [class.hidden]="isKuttiPhase">
     <!-- Left Side: Scoreboard -->
     <div class="sidebar">
       <app-scoreboard
@@ -59,22 +91,31 @@
       <!-- AI Players (opponents at top) -->
       <div class="opponents-area">
         @for (player of aiPlayers; track player.id) {
-          <div class="opponent-section" [class.active]="currentPlayerIndex() === player.id">
+          <div class="opponent-section"
+            [class.active]="currentPlayerIndex() === player.id"
+            [class.finished]="player.isFinished">
             <div class="opponent-name" [class.turn-active]="currentPlayerIndex() === player.id">
-              <span class="bot-icon">🤖</span>
+              <span class="bot-icon">{{ player.isFinished ? '✅' : '🤖' }}</span>
               {{ player.name }}
-              @if (currentPlayerIndex() === player.id && phase() === GamePhase.Playing) {
+              @if (player.isFinished) {
+                <span class="finish-badge">#{{ player.finishOrder }}</span>
+              }
+              @if (currentPlayerIndex() === player.id && phase() === GamePhase.Playing && !player.isFinished) {
                 <span class="thinking">thinking...</span>
               }
             </div>
             <div class="opponent-cards">
-              @for (card of player.hand; track card.id; let i = $index) {
-                <div class="mini-card-back" [style.margin-left]="i > 0 ? '-12px' : '0'">
-                  <div class="mini-card-inner">🂠</div>
-                </div>
+              @if (!player.isFinished) {
+                @for (card of player.hand; track card.id; let i = $index) {
+                  <div class="mini-card-back" [style.margin-left]="i > 0 ? '-12px' : '0'">
+                    <div class="mini-card-inner">🂠</div>
+                  </div>
+                }
               }
-              @if (player.hand.length === 0) {
-                <span class="no-cards">✓ Done</span>
+              @if (player.hand.length === 0 && player.isFinished) {
+                <span class="no-cards finished-text">✓ Finished (#{{ player.finishOrder }})</span>
+              } @else if (player.hand.length === 0) {
+                <span class="no-cards">No cards</span>
               }
             </div>
           </div>
@@ -85,46 +126,70 @@
       <app-trick-area
         [currentTrick]="currentTrick()"
         [players]="players()"
-        [leadSuit]="leadSuit()"
+        [leadSuit]="null"
         [trickNumber]="trickNumber()"
-        [totalTricks]="totalTricks()">
+        [totalTricks]="0">
       </app-trick-area>
 
       <!-- Human Player (bottom) -->
       @if (humanPlayer; as human) {
         <app-player-hand
           [player]="human"
-          [isCurrentTurn]="isHumanTurn()"
-          [validCards]="getValidCards(human)"
+          [isCurrentTurn]="!!isHumanTurn()"
+          [validCards]="getPlayableCards(human)"
           (cardPlayed)="onCardPlayed($event)">
         </app-player-hand>
       }
     </div>
   </div>
 
-  <!-- Game Over Overlay -->
+  <!-- ═══ GAME OVER OVERLAY ═══ -->
   @if (phase() === GamePhase.GameOver) {
     <div class="game-over-overlay">
       <div class="game-over-card">
         <h2>🎉 Game Over!</h2>
-        <div class="final-scores">
-          @for (player of sortedPlayers; track player.id) {
-            <div class="final-score-row"
-              [class.winner]="player.collectedCards.length === getMinCollected()"
-              [class.loser]="player.collectedCards.length === getMaxCollected()">
-              <span class="position-icon">
-                @if (player.collectedCards.length === getMinCollected()) { 🏆 }
-                @else if (player.collectedCards.length === getMaxCollected()) { 🐕 }
-                @else { • }
-              </span>
-              <span class="final-name">{{ player.name }}</span>
-              <span class="final-collected">{{ player.collectedCards.length }} cards</span>
-              @if (player.collectedCards.length === getMaxCollected()) {
-                <span class="dog-label">DOG!</span>
-              }
+
+        <div class="final-results">
+          @if (winner(); as w) {
+            <div class="result-banner winner-banner">
+              <span class="result-emoji">🏆</span>
+              <div>
+                <div class="result-title">WINNER</div>
+                <div class="result-name">{{ w.name }}</div>
+                <div class="result-detail">Finished first! Collected {{ w.collectedCards.length }} cards.</div>
+              </div>
+            </div>
+          }
+
+          @if (dock(); as d) {
+            <div class="result-banner dock-banner">
+              <span class="result-emoji">🐕</span>
+              <div>
+                <div class="result-title">DOCK</div>
+                <div class="result-name">{{ d.name }}</div>
+                <div class="result-detail">Last player with cards! Collected {{ d.collectedCards.length }} cards.</div>
+              </div>
             </div>
           }
         </div>
+
+        <div class="final-rankings">
+          <h3>Final Rankings</h3>
+          @for (player of sortedPlayers; track player.id) {
+            <div class="ranking-row"
+              [class.is-winner]="winner()?.id === player.id"
+              [class.is-dock]="dock()?.id === player.id">
+              <span class="rank-num">
+                @if (winner()?.id === player.id) { 🏆 }
+                @else if (dock()?.id === player.id) { 🐕 }
+                @else { #{{ player.finishOrder }} }
+              </span>
+              <span class="rank-name">{{ player.name }}</span>
+              <span class="rank-cards">{{ player.hand.length + player.collectedCards.length }} cards</span>
+            </div>
+          }
+        </div>
+
         <button class="play-again-btn" (click)="onNewGame()">🎮 Play Again</button>
       </div>
     </div>

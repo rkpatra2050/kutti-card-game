@@ -6,12 +6,21 @@
         class="player-score"
         [class.current-turn]="player.id === currentPlayerIndex"
         [class.highlighted]="player.id === highlightedPlayerIndex"
-        [class.is-human]="player.isHuman">
+        [class.is-human]="player.isHuman"
+        [class.finished]="player.isFinished">
         <div class="player-info">
-          <span class="player-icon">{{ player.isHuman ? '👤' : '🤖' }}</span>
+          <span class="player-icon">
+            @if (player.isFinished && player.finishOrder === 1) { 🏆 }
+            @else if (player.isHuman) { 👤 }
+            @else if (player.isFinished) { ✅ }
+            @else { 🤖 }
+          </span>
           <span class="player-name">{{ player.name }}</span>
-          @if (player.id === currentPlayerIndex) {
+          @if (player.id === currentPlayerIndex && !player.isFinished) {
             <span class="turn-badge">TURN</span>
+          }
+          @if (player.isFinished) {
+            <span class="finish-order">#{{ player.finishOrder }}</span>
           }
         </div>
         <div class="player-stats">

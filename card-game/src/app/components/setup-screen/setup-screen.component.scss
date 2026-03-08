@@ -4,6 +4,7 @@
   justify-content: center;
   min-height: 100vh;
   padding: 20px;
+  overflow-y: auto;
 }
 
 .setup-card {
@@ -105,7 +106,7 @@
 
   .player-buttons {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 12px;
   }
 }

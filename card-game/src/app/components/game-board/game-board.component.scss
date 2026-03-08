@@ -6,7 +6,7 @@
   position: relative;
 }
 
-// Top Bar
+// ─── Top Bar ────────────────────────────────────────────
 .top-bar {
   display: flex;
   align-items: center;
@@ -40,6 +40,7 @@
     background: rgba(255, 255, 255, 0.05);
     border-radius: 12px;
     transition: all 0.3s ease;
+    white-space: pre-line;
 
     &.highlight {
       background: rgba(255, 215, 0, 0.15);
@@ -47,7 +48,7 @@
       font-weight: 700;
     }
 
-    &.reveal {
+    &.kutti {
       background: rgba(100, 149, 237, 0.2);
       color: #90caf9;
       font-weight: 600;
@@ -73,84 +74,176 @@
   }
 }
 
-// Reveal Phase Overlay
-.reveal-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(10px);
+// ─── Kutti Distribution Overlay ─────────────────────────
+.kutti-overlay {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
-  animation: fade-in 0.5s ease;
+  padding: 30px;
+  overflow-y: auto;
 }
 
-.reveal-content {
+.kutti-content {
   text-align: center;
+  max-width: 900px;
+  width: 100%;
+}
+
+.kutti-header {
+  margin-bottom: 30px;
 
   h2 {
     color: #ffd700;
     font-size: 2em;
-    margin-bottom: 8px;
-  }
-
-  p {
-    color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 30px;
+    margin: 0 0 10px 0;
   }
 }
 
-.reveal-cards {
+.kutti-progress {
   display: flex;
+  align-items: center;
   justify-content: center;
   gap: 24px;
-  flex-wrap: wrap;
-}
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1em;
 
-.reveal-card-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  animation: card-reveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  opacity: 0;
-  transform: translateY(30px) rotateY(90deg);
-
-  &.winner {
-    .reveal-player-name {
-      color: #ffd700;
-      font-weight: 800;
-    }
-  }
-
-  .reveal-player-name {
-    color: rgba(255, 255, 255, 0.8);
-    font-weight: 600;
+  .deck-count {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 4px 14px;
+    border-radius: 20px;
     font-size: 0.9em;
   }
-
-  .starts-badge {
-    color: #ffd700;
-    font-weight: 800;
-    font-size: 0.85em;
-    animation: pulse-badge 1s infinite;
-  }
 }
 
-.dealing-animation {
+.kutti-drawing {
+  padding: 40px;
+
   .dealing-icon {
     font-size: 5em;
     display: inline-block;
     animation: dealing-spin 1s ease-in-out infinite;
   }
+
+  p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.1em;
+    margin-top: 16px;
+  }
 }
 
-// Main Layout
+.kutti-cards-grid {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.kutti-card-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  border: 2px solid transparent;
+  min-width: 110px;
+  animation: card-reveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
+  transform: translateY(30px);
+
+  &.giver {
+    border-color: rgba(244, 67, 54, 0.5);
+    background: rgba(244, 67, 54, 0.1);
+  }
+
+  &.receiver {
+    border-color: rgba(76, 175, 80, 0.5);
+    background: rgba(76, 175, 80, 0.1);
+  }
+}
+
+.kutti-player-name {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 700;
+  font-size: 0.9em;
+}
+
+.kutti-hand-count {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75em;
+}
+
+.transfer-badge {
+  font-size: 0.75em;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 8px;
+  animation: pulse-badge 1s infinite;
+
+  &.give {
+    background: rgba(244, 67, 54, 0.3);
+    color: #ef5350;
+  }
+
+  &.receive {
+    background: rgba(76, 175, 80, 0.3);
+    color: #4caf50;
+  }
+}
+
+.transfer-info {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  padding: 16px 24px;
+  margin-top: 16px;
+  display: inline-block;
+
+  h4 {
+    color: #ffd700;
+    margin: 0 0 10px 0;
+    font-size: 1em;
+  }
+}
+
+.transfer-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 0.9em;
+
+  .from {
+    color: #ef5350;
+    font-weight: 700;
+  }
+
+  .arrow {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .to {
+    color: #4caf50;
+    font-weight: 700;
+  }
+
+  .reason {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.85em;
+  }
+}
+
+// ─── Main Game Layout ───────────────────────────────────
 .game-layout {
   display: flex;
   flex: 1;
   overflow: hidden;
+
+  &.hidden {
+    display: none;
+  }
 }
 
 .sidebar {
@@ -169,7 +262,7 @@
   overflow-y: auto;
 }
 
-// Opponents Area
+// ─── Opponents ──────────────────────────────────────────
 .opponents-area {
   display: flex;
   gap: 16px;
@@ -188,6 +281,12 @@
   &.active {
     border-color: rgba(255, 215, 0, 0.3);
     background: rgba(255, 215, 0, 0.05);
+  }
+
+  &.finished {
+    opacity: 0.6;
+    border-color: rgba(76, 175, 80, 0.3);
+    background: rgba(76, 175, 80, 0.05);
   }
 }
 
@@ -213,6 +312,15 @@
     color: #ffd700;
     font-style: italic;
     animation: blink 1s infinite;
+  }
+
+  .finish-badge {
+    font-size: 0.7em;
+    background: rgba(76, 175, 80, 0.3);
+    color: #4caf50;
+    padding: 1px 8px;
+    border-radius: 6px;
+    font-weight: 800;
   }
 }
 
@@ -242,9 +350,15 @@
   color: rgba(76, 175, 80, 0.7);
   font-size: 0.8em;
   font-style: italic;
+
+  &.finished-text {
+    color: #4caf50;
+    font-weight: 600;
+    font-style: normal;
+  }
 }
 
-// Game Over Overlay
+// ─── Game Over Overlay ──────────────────────────────────
 .game-over-overlay {
   position: fixed;
   inset: 0;
@@ -263,6 +377,7 @@
   border-radius: 24px;
   padding: 40px;
   min-width: 420px;
+  max-width: 540px;
   text-align: center;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   animation: slide-up 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -274,65 +389,108 @@
   }
 }
 
-.final-scores {
+.final-results {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 30px;
+  gap: 12px;
+  margin-bottom: 28px;
 }
 
-.final-score-row {
+.result-banner {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  transition: all 0.3s ease;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  text-align: left;
 
-  &.winner {
-    background: rgba(76, 175, 80, 0.2);
-    border: 1px solid rgba(76, 175, 80, 0.4);
+  .result-emoji {
+    font-size: 2.5em;
+  }
 
-    .final-name {
+  .result-title {
+    font-size: 0.75em;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+  }
+
+  .result-name {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: white;
+  }
+
+  .result-detail {
+    font-size: 0.8em;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 2px;
+  }
+
+  &.winner-banner {
+    background: rgba(76, 175, 80, 0.15);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+
+    .result-title {
       color: #4caf50;
     }
   }
 
-  &.loser {
+  &.dock-banner {
     background: rgba(244, 67, 54, 0.15);
     border: 1px solid rgba(244, 67, 54, 0.3);
 
-    .final-name {
+    .result-title {
       color: #ef5350;
     }
   }
+}
 
-  .position-icon {
-    font-size: 1.3em;
-    min-width: 30px;
-    text-align: center;
+.final-rankings {
+  margin-bottom: 24px;
+
+  h3 {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95em;
+    margin-bottom: 12px;
+  }
+}
+
+.ranking-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  margin-bottom: 6px;
+
+  &.is-winner {
+    background: rgba(76, 175, 80, 0.1);
   }
 
-  .final-name {
+  &.is-dock {
+    background: rgba(244, 67, 54, 0.1);
+  }
+
+  .rank-num {
+    font-size: 1.1em;
+    min-width: 30px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 700;
+  }
+
+  .rank-name {
     flex: 1;
     color: white;
     font-weight: 600;
     text-align: left;
   }
 
-  .final-collected {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.9em;
-  }
-
-  .dog-label {
-    background: rgba(244, 67, 54, 0.3);
-    color: #ef5350;
-    font-size: 0.75em;
-    font-weight: 800;
-    padding: 2px 10px;
-    border-radius: 8px;
+  .rank-cards {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85em;
   }
 }
 
@@ -354,6 +512,7 @@
   }
 }
 
+// ─── Animations ─────────────────────────────────────────
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -378,11 +537,11 @@
 @keyframes card-reveal {
   from {
     opacity: 0;
-    transform: translateY(30px) rotateY(90deg);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) rotateY(0deg);
+    transform: translateY(0);
   }
 }
 
