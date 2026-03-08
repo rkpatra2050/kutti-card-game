@@ -54,11 +54,13 @@
 
           @if (isMustPass()) {
             <div class="kutti-actions">
-              <div class="pass-info">Your card will be passed! Confirm below.</div>
+              <div class="pass-info">⚠️ Your card must be passed! Click below to confirm.</div>
               <button class="kutti-btn pass-btn" (click)="onPassKuttiCard()">
                 ↗️ Pass My Card
               </button>
             </div>
+          } @else if (pendingPassIds().length > 0) {
+            <div class="waiting-host">⏳ Waiting for {{ pendingPassNames() }} to pass...</div>
           } @else {
             <div class="waiting-host">⏳ Resolving in a moment...</div>
           }

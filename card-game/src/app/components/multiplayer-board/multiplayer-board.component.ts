@@ -95,8 +95,17 @@ export class MultiplayerBoardComponent {
   isMustPass(): boolean {
     const me = this.myPlayer();
     if (!me) return false;
-    const pendingPassIds = this.state()?.pendingPassIds ?? [];
-    return pendingPassIds.includes(me.id);
+    return this.pendingPassIds().includes(me.id);
+  }
+
+  pendingPassIds(): number[] {
+    return this.state()?.pendingPassIds ?? [];
+  }
+
+  pendingPassNames(): string {
+    return this.pendingPassIds()
+      .map(id => this.players.find(p => p.id === id)?.name ?? `Player ${id + 1}`)
+      .join(', ');
   }
 
   onPassKuttiCard(): void {
