@@ -11,32 +11,34 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 24px;
+  padding: 10px 16px;
   background: rgba(0, 0, 0, 0.3);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  gap: 16px;
+  gap: 10px;
+  flex-shrink: 0;
 
   .game-title {
-    font-size: 1.3em;
+    font-size: 1em;
     font-weight: 800;
     color: #ffd700;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     white-space: nowrap;
-    .title-icon { font-size: 1.3em; }
+    .title-icon { font-size: 1.1em; }
   }
 
   .message-bar {
     flex: 1;
     text-align: center;
     color: rgba(255, 255, 255, 0.85);
-    font-size: 0.95em;
+    font-size: 0.8em;
     font-weight: 500;
-    padding: 8px 20px;
+    padding: 6px 10px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
+    border-radius: 10px;
     white-space: pre-line;
+    min-width: 0;
     &.highlight { background: rgba(255, 215, 0, 0.15); color: #ffd700; font-weight: 700; }
     &.kutti { background: rgba(100, 149, 237, 0.2); color: #90caf9; }
   }
@@ -44,28 +46,31 @@
   .top-right {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
+    flex-shrink: 0;
   }
 
   .room-badge {
     background: rgba(100, 149, 237, 0.2);
     color: #90caf9;
-    padding: 6px 14px;
-    border-radius: 10px;
-    font-size: 0.85em;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.75em;
     font-weight: 700;
     letter-spacing: 1px;
+    white-space: nowrap;
   }
 
   .leave-btn {
     background: rgba(244, 67, 54, 0.2);
     border: 1px solid rgba(244, 67, 54, 0.3);
     color: #ef5350;
-    padding: 8px 14px;
-    border-radius: 10px;
+    padding: 6px 10px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 0.8em;
+    font-size: 0.75em;
     font-weight: 600;
+    white-space: nowrap;
     &:hover { background: rgba(244, 67, 54, 0.3); }
   }
 }
@@ -74,51 +79,52 @@
 .kutti-overlay {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 30px;
+  padding: 16px;
   overflow-y: auto;
 }
 .kutti-content { text-align: center; max-width: 900px; width: 100%; }
 .kutti-header {
-  margin-bottom: 30px;
-  h2 { color: #ffd700; font-size: 2em; margin: 0 0 10px 0; }
+  margin-bottom: 20px;
+  h2 { color: #ffd700; font-size: 1.5em; margin: 0 0 8px 0; }
 }
 .kutti-progress {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: 16px;
   color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9em;
   .deck-count {
     background: rgba(255, 255, 255, 0.08);
-    padding: 4px 14px;
+    padding: 4px 12px;
     border-radius: 20px;
     font-size: 0.9em;
   }
 }
 .kutti-drawing {
-  padding: 40px;
-  .dealing-icon { font-size: 5em; animation: dealing-spin 1s ease-in-out infinite; display: inline-block; }
-  p { color: rgba(255, 255, 255, 0.6); font-size: 1.1em; margin-top: 16px; }
+  padding: 30px;
+  .dealing-icon { font-size: 4em; animation: dealing-spin 1s ease-in-out infinite; display: inline-block; }
+  p { color: rgba(255, 255, 255, 0.6); font-size: 1em; margin-top: 12px; }
 }
 .kutti-cards-grid {
   display: flex;
   justify-content: center;
-  gap: 24px;
+  gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 .kutti-card-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 16px;
+  gap: 6px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 14px;
+  border-radius: 12px;
   border: 2px solid transparent;
-  min-width: 110px;
+  min-width: 90px;
   animation: card-reveal 0.6s ease forwards;
   opacity: 0;
   &.giver { border-color: rgba(244, 67, 54, 0.5); background: rgba(244, 67, 54, 0.1); }
@@ -127,156 +133,162 @@
 .kutti-player-name {
   color: rgba(255, 255, 255, 0.8);
   font-weight: 700;
-  font-size: 0.9em;
+  font-size: 0.8em;
+  text-align: center;
   &.is-me { color: #ffd700; }
 }
-.kutti-hand-count { color: rgba(255, 255, 255, 0.5); font-size: 0.75em; }
+.kutti-hand-count { color: rgba(255, 255, 255, 0.5); font-size: 0.7em; }
 .transfer-badge {
-  font-size: 0.75em; font-weight: 800; padding: 3px 10px; border-radius: 8px;
+  font-size: 0.7em; font-weight: 800; padding: 3px 8px; border-radius: 6px;
   &.give { background: rgba(244, 67, 54, 0.3); color: #ef5350; }
   &.receive { background: rgba(76, 175, 80, 0.3); color: #4caf50; }
 }
 .transfer-info {
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 14px;
-  padding: 16px 24px;
-  margin-top: 16px;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-top: 12px;
   display: inline-block;
-  h4 { color: #ffd700; margin: 0 0 10px 0; }
+  h4 { color: #ffd700; margin: 0 0 8px 0; font-size: 0.95em; }
 }
 .transfer-line {
-  display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 0.9em;
+  display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 0.85em;
   .from { color: #ef5350; font-weight: 700; }
   .arrow { color: rgba(255, 255, 255, 0.6); }
   .to { color: #4caf50; font-weight: 700; }
 }
-.kutti-actions { margin-top: 24px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.pass-info { color: #ffd700; font-weight: 600; font-size: 1em; text-align: center; }
+.kutti-actions { margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.pass-info { color: #ffd700; font-weight: 600; font-size: 0.95em; text-align: center; padding: 0 16px; }
 .kutti-btn {
   padding: 14px 36px; font-size: 1.1em; font-weight: 700; border: none;
   border-radius: 14px; cursor: pointer; transition: all 0.3s ease;
   &:hover { transform: translateY(-2px); }
-  &.pass-btn { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; font-size: 1.2em; padding: 16px 44px; }
+  &.pass-btn { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; font-size: 1.1em; padding: 14px 36px; }
 }
 .waiting-host {
   color: rgba(255, 255, 255, 0.5);
   font-style: italic;
-  margin-top: 20px;
-  font-size: 1em;
+  margin-top: 16px;
+  font-size: 0.95em;
 }
 
-// Game layout
-.game-layout { display: flex; flex: 1; overflow: hidden; }
+// ═══ GAME LAYOUT ═══
+.game-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+// Sidebar (desktop)
 .sidebar {
-  width: 260px; padding: 20px;
+  width: 220px;
+  padding: 16px;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   overflow-y: auto;
+  flex-shrink: 0;
 }
 .scoreboard {
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 20px;
+  border-radius: 14px;
+  padding: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
-.scoreboard-title { color: #ffd700; margin: 0 0 14px 0; font-size: 1em; text-align: center; }
+.scoreboard-title { color: #ffd700; margin: 0 0 12px 0; font-size: 0.9em; text-align: center; }
 .score-row {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 14px; border-radius: 12px; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 10px; border-radius: 10px; margin-bottom: 6px;
   background: rgba(255, 255, 255, 0.03);
   border: 2px solid transparent;
   &.current-turn { border-color: rgba(255, 215, 0, 0.4); background: rgba(255, 215, 0, 0.08); }
   &.is-me { background: rgba(100, 149, 237, 0.1); border-color: rgba(100, 149, 237, 0.2); }
   &.finished { opacity: 0.7; border-color: rgba(76, 175, 80, 0.3); }
-  .p-icon { font-size: 1.2em; }
-  .p-name { flex: 1; color: white; font-weight: 600; font-size: 0.9em; }
-  .turn-badge {
-    font-size: 0.65em; background: #ffd700; color: #1a1a2e;
-    padding: 2px 8px; border-radius: 8px; font-weight: 800;
-  }
-  .finish-badge {
-    font-size: 0.65em; background: rgba(76, 175, 80, 0.3); color: #4caf50;
-    padding: 2px 8px; border-radius: 8px; font-weight: 800;
-  }
-  .p-stats { display: flex; gap: 8px; font-size: 0.8em; color: rgba(255, 255, 255, 0.6); }
+  .p-icon { font-size: 1em; }
+  .p-name { flex: 1; color: white; font-weight: 600; font-size: 0.8em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .turn-badge { font-size: 0.6em; background: #ffd700; color: #1a1a2e; padding: 2px 6px; border-radius: 6px; font-weight: 800; }
+  .finish-badge { font-size: 0.6em; background: rgba(76, 175, 80, 0.3); color: #4caf50; padding: 2px 6px; border-radius: 6px; font-weight: 800; }
+  .p-stats { display: flex; gap: 6px; font-size: 0.75em; color: rgba(255, 255, 255, 0.6); }
 }
 
-.center-area { flex: 1; display: flex; flex-direction: column; padding: 20px; gap: 16px; overflow-y: auto; }
+.center-area { flex: 1; display: flex; flex-direction: column; padding: 12px; gap: 10px; overflow-y: auto; min-width: 0; }
 
 // Opponents
-.opponents-area { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.opponents-area { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .opponent-section {
   background: rgba(255, 255, 255, 0.03);
-  border: 2px solid transparent; border-radius: 14px;
-  padding: 12px 16px; min-width: 140px;
+  border: 2px solid transparent; border-radius: 12px;
+  padding: 10px 12px; min-width: 120px;
   &.active { border-color: rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.05); }
   &.finished { opacity: 0.6; border-color: rgba(76, 175, 80, 0.3); }
 }
 .opponent-name {
-  color: rgba(255, 255, 255, 0.8); font-weight: 600; font-size: 0.85em;
-  margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+  color: rgba(255, 255, 255, 0.8); font-weight: 600; font-size: 0.8em;
+  margin-bottom: 6px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
   &.turn-active { color: #ffd700; }
   .thinking { font-size: 0.8em; color: #ffd700; font-style: italic; animation: blink 1s infinite; }
-  .finish-badge { font-size: 0.7em; background: rgba(76, 175, 80, 0.3); color: #4caf50; padding: 1px 8px; border-radius: 6px; font-weight: 800; }
+  .finish-badge { font-size: 0.7em; background: rgba(76, 175, 80, 0.3); color: #4caf50; padding: 1px 6px; border-radius: 5px; font-weight: 800; }
 }
-.opponent-cards { display: flex; align-items: center; }
+.opponent-cards { display: flex; align-items: center; flex-wrap: wrap; gap: 2px; }
 .mini-card-back {
-  width: 28px; height: 40px;
+  width: 24px; height: 34px;
   background: linear-gradient(145deg, #1a237e, #283593);
   border: 1.5px solid #0d1657; border-radius: 4px;
   display: flex; align-items: center; justify-content: center;
-  .mini-card-inner { font-size: 16px; opacity: 0.5; }
+  .mini-card-inner { font-size: 13px; opacity: 0.5; }
 }
-.no-cards { color: rgba(76, 175, 80, 0.7); font-size: 0.8em; font-style: italic;
+.no-cards { color: rgba(76, 175, 80, 0.7); font-size: 0.75em; font-style: italic;
   &.finished-text { color: #4caf50; font-weight: 600; font-style: normal; }
 }
 
 // Trick area
 .trick-area {
   background: rgba(255, 255, 255, 0.03);
-  border-radius: 16px;
-  padding: 20px;
+  border-radius: 14px;
+  padding: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   text-align: center;
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 120px;
 }
-.trick-header { margin-bottom: 12px; }
-.trick-info { color: rgba(255, 255, 255, 0.6); font-size: 0.9em; }
-.trick-cards { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; flex: 1; align-items: center; }
+.trick-header { margin-bottom: 8px; }
+.trick-info { color: rgba(255, 255, 255, 0.6); font-size: 0.85em; }
+.trick-cards { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; flex: 1; align-items: center; }
 .empty-trick {
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
   color: rgba(255, 255, 255, 0.3);
-  .waiting-icon { font-size: 3em; }
+  .waiting-icon { font-size: 2.5em; }
+  span { font-size: 0.85em; }
 }
 .played-card-container {
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
   animation: card-reveal 0.4s ease forwards; opacity: 0;
-  .player-label { color: rgba(255, 255, 255, 0.7); font-size: 0.8em; font-weight: 600; }
+  .player-label { color: rgba(255, 255, 255, 0.7); font-size: 0.75em; font-weight: 600; }
 }
 
 // My hand
 .my-hand {
-  padding: 16px; border-radius: 16px;
+  padding: 12px; border-radius: 14px;
   background: rgba(255, 255, 255, 0.03);
   border: 2px solid transparent;
-  &.active-turn { border-color: rgba(255, 215, 0, 0.4); background: rgba(255, 215, 0, 0.05); box-shadow: 0 0 30px rgba(255, 215, 0, 0.1); }
+  flex-shrink: 0;
+  &.active-turn { border-color: rgba(255, 215, 0, 0.4); background: rgba(255, 215, 0, 0.05); box-shadow: 0 0 20px rgba(255, 215, 0, 0.1); }
   &.finished { opacity: 0.65; border-color: rgba(76, 175, 80, 0.3); }
 }
 .hand-label {
-  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
-  .player-name { font-size: 1.1em; font-weight: 700; color: white; }
-  .card-count { font-size: 0.85em; color: rgba(255, 255, 255, 0.5); }
-  .collected-count { font-size: 0.8em; color: #ff8c00; background: rgba(255, 140, 0, 0.15); padding: 2px 10px; border-radius: 20px; }
-  .finished-badge { font-size: 0.8em; color: #4caf50; background: rgba(76, 175, 80, 0.15); padding: 2px 10px; border-radius: 20px; font-weight: 700; }
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;
+  .player-name { font-size: 1em; font-weight: 700; color: white; }
+  .card-count { font-size: 0.8em; color: rgba(255, 255, 255, 0.5); }
+  .collected-count { font-size: 0.75em; color: #ff8c00; background: rgba(255, 140, 0, 0.15); padding: 2px 8px; border-radius: 20px; }
+  .finished-badge { font-size: 0.75em; color: #4caf50; background: rgba(76, 175, 80, 0.15); padding: 2px 8px; border-radius: 20px; font-weight: 700; }
 }
 .cards-row { display: flex; flex-wrap: wrap; gap: 0; padding: 4px 0; }
 .card-slot {
-  margin-left: -20px;
+  margin-left: -16px;
   &:first-child { margin-left: 0; }
   &:hover { z-index: 20 !important; }
 }
-.empty-hand { color: rgba(255, 255, 255, 0.3); font-style: italic; padding: 20px; }
+.empty-hand { color: rgba(255, 255, 255, 0.3); font-style: italic; padding: 16px; }
 
 // Game over
 .game-over-overlay {
@@ -284,43 +296,145 @@
   background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(10px);
   display: flex; align-items: center; justify-content: center;
   z-index: 1000; animation: fade-in 0.5s ease;
+  padding: 16px;
 }
 .game-over-card {
   background: rgba(30, 30, 60, 0.95);
   border: 2px solid rgba(255, 215, 0, 0.3);
-  border-radius: 24px; padding: 40px;
-  min-width: 420px; max-width: 540px; text-align: center;
+  border-radius: 20px; padding: 28px 20px;
+  width: 100%; max-width: 480px; text-align: center;
   animation: slide-up 0.5s ease;
-  h2 { color: #ffd700; font-size: 2em; margin: 0 0 24px 0; }
+  overflow-y: auto; max-height: 90vh;
+  h2 { color: #ffd700; font-size: 1.7em; margin: 0 0 20px 0; }
 }
-.final-results { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+.final-results { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
 .result-banner {
-  display: flex; align-items: center; gap: 16px; padding: 16px 20px;
-  border-radius: 14px; text-align: left;
-  .result-emoji { font-size: 2.5em; }
-  .result-title { font-size: 0.75em; font-weight: 800; letter-spacing: 2px; }
-  .result-name { font-size: 1.2em; font-weight: 700; color: white; }
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+  border-radius: 12px; text-align: left;
+  .result-emoji { font-size: 2em; }
+  .result-title { font-size: 0.7em; font-weight: 800; letter-spacing: 2px; }
+  .result-name { font-size: 1.1em; font-weight: 700; color: white; }
   &.winner-banner { background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.3); .result-title { color: #4caf50; } }
   &.dock-banner { background: rgba(244, 67, 54, 0.15); border: 1px solid rgba(244, 67, 54, 0.3); .result-title { color: #ef5350; } }
 }
-.final-rankings { margin-bottom: 24px; h3 { color: rgba(255, 255, 255, 0.7); font-size: 0.95em; margin-bottom: 12px; } }
+.final-rankings { margin-bottom: 20px; h3 { color: rgba(255, 255, 255, 0.7); font-size: 0.9em; margin-bottom: 10px; } }
 .ranking-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 14px; border-radius: 10px; background: rgba(255, 255, 255, 0.04); margin-bottom: 6px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-radius: 8px; background: rgba(255, 255, 255, 0.04); margin-bottom: 6px;
   &.is-winner { background: rgba(76, 175, 80, 0.1); }
   &.is-dock { background: rgba(244, 67, 54, 0.1); }
-  .rank-num { font-size: 1.1em; min-width: 30px; text-align: center; color: rgba(255, 255, 255, 0.6); font-weight: 700; }
-  .rank-name { flex: 1; color: white; font-weight: 600; text-align: left; }
+  .rank-num { font-size: 1em; min-width: 28px; text-align: center; color: rgba(255, 255, 255, 0.6); font-weight: 700; }
+  .rank-name { flex: 1; color: white; font-weight: 600; text-align: left; font-size: 0.95em; }
 }
 .play-again-btn {
-  padding: 14px 40px; font-size: 1.2em; font-weight: 700; border: none;
+  padding: 14px 36px; font-size: 1.1em; font-weight: 700; border: none;
   border-radius: 14px; background: linear-gradient(135deg, #ffd700, #ff8c00);
   color: #1a1a2e; cursor: pointer;
   &:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255, 215, 0, 0.5); }
 }
 
+// ═══ MOBILE STYLES ═══
+@media (max-width: 768px) {
+  .top-bar {
+    padding: 8px 10px;
+    gap: 6px;
+    .game-title { font-size: 0.85em; }
+    .room-badge { display: none; } // hide on mobile to save space
+    .message-bar { font-size: 0.72em; padding: 4px 8px; }
+    .leave-btn { padding: 5px 8px; font-size: 0.7em; }
+  }
+
+  // Kutti phase — stack vertically, smaller cards
+  .kutti-overlay { padding: 10px; }
+  .kutti-header {
+    margin-bottom: 12px;
+    h2 { font-size: 1.2em; }
+  }
+  .kutti-progress { font-size: 0.8em; gap: 10px; }
+  .kutti-cards-grid { gap: 8px; }
+  .kutti-card-item { min-width: 72px; padding: 8px; }
+  .kutti-player-name { font-size: 0.72em; }
+  .kutti-btn { padding: 12px 28px; font-size: 1em; }
+
+  // Game layout — hide sidebar, go full column
+  .game-layout {
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 10px;
+    overflow-y: visible;
+  }
+
+  .scoreboard { padding: 10px; }
+  .scoreboard-title { font-size: 0.8em; margin-bottom: 8px; }
+
+  // Show scoreboard as horizontal scrollable row on mobile
+  .scoreboard > .score-row {
+    display: inline-flex;
+    margin-right: 6px;
+    margin-bottom: 0;
+  }
+
+  .scoreboard {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 6px;
+    border-radius: 10px;
+    padding: 8px;
+    flex-wrap: nowrap;
+  }
+
+  .score-row {
+    flex-shrink: 0;
+    min-width: 100px;
+    padding: 6px 8px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    font-size: 0.75em;
+    .p-name { font-size: 0.85em; white-space: nowrap; }
+    .p-stats { font-size: 0.75em; flex-direction: row; gap: 4px; }
+  }
+
+  .center-area { padding: 8px; gap: 8px; flex: none; }
+
+  .opponents-area { gap: 6px; }
+  .opponent-section { min-width: 100px; padding: 8px 10px; }
+  .opponent-name { font-size: 0.75em; }
+  .mini-card-back { width: 18px; height: 26px; .mini-card-inner { font-size: 10px; } }
+
+  .trick-area { padding: 10px; min-height: 100px; }
+  .trick-cards { gap: 8px; }
+
+  .my-hand { padding: 10px; }
+  .hand-label {
+    gap: 6px; margin-bottom: 8px;
+    .player-name { font-size: 0.9em; }
+    .card-count { font-size: 0.75em; }
+  }
+  .card-slot { margin-left: -14px; }
+  .cards-row { padding: 2px 0; }
+
+  .game-over-card { padding: 20px 14px; h2 { font-size: 1.4em; } }
+  .result-banner { padding: 10px 12px; gap: 10px; .result-emoji { font-size: 1.6em; } .result-name { font-size: 1em; } }
+  .play-again-btn { padding: 12px 28px; font-size: 1em; }
+}
+
+@media (max-width: 400px) {
+  .top-bar .game-title { display: none; } // hide title on very small screens
+  .kutti-card-item { min-width: 60px; padding: 6px; }
+  .card-slot { margin-left: -18px; }
+}
+
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slide-up { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-@keyframes card-reveal { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes card-reveal { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes dealing-spin { 0% { transform: rotate(0) scale(1); } 50% { transform: rotate(15deg) scale(1.1); } 100% { transform: rotate(0) scale(1); } }
