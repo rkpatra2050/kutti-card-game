@@ -54,8 +54,23 @@
             }
           </div>
 
-          @if (isMustPass()) {
-            <!-- Human is a giver — show Pass button -->
+          @if (isHost()) {
+            <!-- Host always sees Resolve button; also sees Pass if they're a giver -->
+            <div class="kutti-actions">
+              @if (isMustPass()) {
+                <div class="pass-info">⚠️ Your card must be passed!</div>
+                <button class="kutti-btn pass-btn" (click)="onPassKuttiCard()">
+                  ↗️ Pass My Card
+                </button>
+              } @else if (pendingPassIds().length > 0) {
+                <div class="pass-info">⏳ Waiting for {{ pendingPassNames() }} to pass... (or force resolve below)</div>
+              }
+              <button class="kutti-btn resolve-btn" (click)="onResolveKutti()">
+                🔍 Resolve Kutti
+              </button>
+            </div>
+          } @else if (isMustPass()) {
+            <!-- Non-host human giver -->
             <div class="kutti-actions">
               <div class="pass-info">⚠️ Your card must be passed! Click below to confirm.</div>
               <button class="kutti-btn pass-btn" (click)="onPassKuttiCard()">
@@ -63,15 +78,7 @@
               </button>
             </div>
           } @else if (pendingPassIds().length > 0) {
-            <!-- Waiting for other humans to pass -->
             <div class="waiting-host">⏳ Waiting for {{ pendingPassNames() }} to pass...</div>
-          } @else if (isHost()) {
-            <!-- No passes needed or all bots handled — host clicks Resolve -->
-            <div class="kutti-actions">
-              <button class="kutti-btn resolve-btn" (click)="onResolveKutti()">
-                🔍 Resolve Kutti
-              </button>
-            </div>
           } @else {
             <div class="waiting-host">⏳ Waiting for host to resolve...</div>
           }
