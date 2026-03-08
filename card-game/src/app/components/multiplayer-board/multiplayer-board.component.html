@@ -47,7 +47,9 @@
                 @if (getKuttiCard(player.id); as card) {
                   <app-card [card]="card" [faceUp]="true"></app-card>
                 }
-                <div class="kutti-hand-count">{{ player.isMe ? player.hand.length : player.handCount }} cards</div>
+                @if ((player.isMe ? player.hand.length : player.handCount) > 0) {
+                  <div class="kutti-hand-count">🃏 {{ player.isMe ? player.hand.length : player.handCount }} in hand</div>
+                }
               </div>
             }
           </div>
@@ -80,7 +82,9 @@
                 @if (getKuttiCard(player.id); as card) {
                   <app-card [card]="card" [faceUp]="true"></app-card>
                 }
-                <div class="kutti-hand-count">{{ player.isMe ? player.hand.length : player.handCount }} cards</div>
+                @if ((player.isMe ? player.hand.length : player.handCount) > 0) {
+                  <div class="kutti-hand-count">🃏 {{ player.isMe ? player.hand.length : player.handCount }} in hand</div>
+                }
                 @if (isTransferGiver(player.id)) {
                   <div class="transfer-badge give">↗ GIVES</div>
                 }
