@@ -96,6 +96,7 @@ export enum GamePhase {
   KuttiDraw = 'kutti-draw',
   KuttiReveal = 'kutti-reveal',
   KuttiTransfer = 'kutti-transfer',
+  KuttiWaitNext = 'kutti-wait-next',
   Playing = 'playing',
   TrickComplete = 'trick-complete',
   GameOver = 'game-over',

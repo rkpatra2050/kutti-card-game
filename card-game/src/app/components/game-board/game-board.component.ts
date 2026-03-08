@@ -55,7 +55,7 @@ export class GameBoardComponent {
 
   get isKuttiPhase(): boolean {
     const p = this.phase();
-    return p === GamePhase.KuttiDraw || p === GamePhase.KuttiReveal || p === GamePhase.KuttiTransfer;
+    return p === GamePhase.KuttiDraw || p === GamePhase.KuttiReveal || p === GamePhase.KuttiTransfer || p === GamePhase.KuttiWaitNext;
   }
 
   getPlayableCards(player: Player): Card[] {
@@ -85,6 +85,19 @@ export class GameBoardComponent {
 
   onCardPlayed(card: Card): void {
     this.gameService.playCard(card);
+  }
+
+  onResolveKutti(): void {
+    this.gameService.resolveKutti();
+  }
+
+  onProceedFromKutti(): void {
+    this.gameService.proceedFromKutti();
+  }
+
+  get hasMoreKuttiRounds(): boolean {
+    const s = this.gameService.gameState();
+    return s.drawDeck.length >= s.players.length && s.kuttiRoundNumber < s.kuttiTotalRounds;
   }
 
   onNewGame(): void {

@@ -113,7 +113,7 @@ export class GameService {
     });
 
     this.finishCounter = 0;
-    setTimeout(() => this.executeKuttiDraw(), 1000);
+    setTimeout(() => this.executeKuttiDraw(), 800);
   }
 
   /** Each player draws one card from the deck */
@@ -128,16 +128,21 @@ export class GameService {
       roundCards.set(player.id, card);
     }
 
+    // Show revealed cards — wait for human to click "Resolve Kutti"
     this._gameState.update(s => ({
       ...s,
       phase: GamePhase.KuttiReveal,
       drawDeck: deck,
       kuttiRoundCards: roundCards,
-      message: `Kutti Round ${s.kuttiRoundNumber}/${s.kuttiTotalRounds}: Cards revealed! Checking for Kutti transfers...`,
+      message: `Kutti Round ${s.kuttiRoundNumber}/${s.kuttiTotalRounds}: Cards revealed! Click "Resolve Kutti" to check transfers.`,
     }));
+  }
 
-    // After reveal pause, check for kutti transfers
-    setTimeout(() => this.resolveKuttiTransfers(), 1800);
+  /** Called by the human clicking "Resolve Kutti" button */
+  resolveKutti(): void {
+    const state = this._gameState();
+    if (state.phase !== GamePhase.KuttiReveal) return;
+    this.resolveKuttiTransfers();
   }
 
   /** Kutti Rule: if card A rank is exactly 1 higher than card B rank, B gives card to A */
@@ -184,7 +189,6 @@ export class GameService {
     // Then apply transfers: lower card goes to higher player
     for (const transfer of transfers) {
       const receiver = updatedPlayers.find(p => p.id === transfer.toPlayerId)!;
-      // Receiver gets both: their own card (already added above) + the transferred card
       receiver.hand.push(transfer.card);
     }
 
@@ -206,33 +210,38 @@ export class GameService {
       transferMsg = 'No Kutti transfers this round.';
     }
 
+    // Determine if more rounds remain
+    const moreRounds = state.drawDeck.length >= state.players.length && state.kuttiRoundNumber < state.kuttiTotalRounds;
+
     this._gameState.update(s => ({
       ...s,
-      phase: GamePhase.KuttiTransfer,
+      phase: GamePhase.KuttiWaitNext,
       players: updatedPlayers,
       kuttiTransfers: transfers,
-      message: transferMsg,
+      message: transferMsg + (moreRounds ? '  👉 Click "Next Round" to continue.' : '  👉 Click "Start Playing!" to begin the game.'),
     }));
+  }
 
-    // Check if more kutti rounds remain
-    setTimeout(() => {
-      const s = this._gameState();
-      if (s.drawDeck.length >= s.players.length && s.kuttiRoundNumber < s.kuttiTotalRounds) {
-        // Next kutti round
-        this._gameState.update(st => ({
-          ...st,
-          phase: GamePhase.KuttiDraw,
-          kuttiRoundNumber: st.kuttiRoundNumber + 1,
-          kuttiRoundCards: new Map(),
-          kuttiTransfers: [],
-          message: `Kutti Round ${st.kuttiRoundNumber + 1}/${st.kuttiTotalRounds}: Drawing cards...`,
-        }));
-        setTimeout(() => this.executeKuttiDraw(), 800);
-      } else {
-        // Kutti phase done — move to playing phase
-        this.startPlayingPhase();
-      }
-    }, 2200);
+  /** Called by the human clicking "Next Round" or "Start Playing" */
+  proceedFromKutti(): void {
+    const state = this._gameState();
+    if (state.phase !== GamePhase.KuttiWaitNext) return;
+
+    const moreRounds = state.drawDeck.length >= state.players.length && state.kuttiRoundNumber < state.kuttiTotalRounds;
+
+    if (moreRounds) {
+      this._gameState.update(st => ({
+        ...st,
+        phase: GamePhase.KuttiDraw,
+        kuttiRoundNumber: st.kuttiRoundNumber + 1,
+        kuttiRoundCards: new Map(),
+        kuttiTransfers: [],
+        message: `Kutti Round ${st.kuttiRoundNumber + 1}/${st.kuttiTotalRounds}: Drawing cards...`,
+      }));
+      setTimeout(() => this.executeKuttiDraw(), 600);
+    } else {
+      this.startPlayingPhase();
+    }
   }
 
   // ═══════════════════════════════════════════════════════════

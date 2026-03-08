@@ -33,8 +33,30 @@
           </div>
         }
 
-        <!-- Reveal & Transfer Phase -->
-        @if (phase() === GamePhase.KuttiReveal || phase() === GamePhase.KuttiTransfer) {
+        <!-- Reveal Phase — player clicks to resolve -->
+        @if (phase() === GamePhase.KuttiReveal) {
+          <div class="kutti-cards-grid">
+            @for (player of players(); track player.id) {
+              <div class="kutti-card-item"
+                [style.animation-delay]="($index * 0.15) + 's'">
+                <div class="kutti-player-name">{{ player.name }}</div>
+                @if (getKuttiCard(player.id); as card) {
+                  <app-card [card]="card" [faceUp]="true"></app-card>
+                }
+                <div class="kutti-hand-count">{{ player.hand.length }} cards in hand</div>
+              </div>
+            }
+          </div>
+
+          <div class="kutti-actions">
+            <button class="kutti-btn resolve-btn" (click)="onResolveKutti()">
+              🔍 Resolve Kutti
+            </button>
+          </div>
+        }
+
+        <!-- Transfer Result + Wait for Next — player clicks to proceed -->
+        @if (phase() === GamePhase.KuttiWaitNext) {
           <div class="kutti-cards-grid">
             @for (player of players(); track player.id) {
               <div class="kutti-card-item"
@@ -57,7 +79,7 @@
           </div>
 
           <!-- Transfer Info -->
-          @if (phase() === GamePhase.KuttiTransfer && kuttiTransfers().length > 0) {
+          @if (kuttiTransfers().length > 0) {
             <div class="transfer-info">
               <h4>🔄 Kutti Transfers:</h4>
               @for (transfer of kuttiTransfers(); track $index) {
@@ -70,6 +92,18 @@
               }
             </div>
           }
+
+          <div class="kutti-actions">
+            @if (hasMoreKuttiRounds) {
+              <button class="kutti-btn next-btn" (click)="onProceedFromKutti()">
+                ➡️ Next Round
+              </button>
+            } @else {
+              <button class="kutti-btn start-playing-btn" (click)="onProceedFromKutti()">
+                🎮 Start Playing!
+              </button>
+            }
+          </div>
         }
       </div>
     </div>
