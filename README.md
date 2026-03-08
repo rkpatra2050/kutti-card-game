@@ -8,7 +8,7 @@ A trick-taking card game built with **Angular 19** featuring smooth animations, 
 
 ## 🎮 Play Now
 
-👉 **[Play Kutti Card Game](https://YOUR_GITHUB_USERNAME.github.io/kutti-card-game/)**
+👉 **[Play Kutti Card Game](https://rkpatra2050.github.io/kutti-card-game/)**
 
 *(Update this link after deploying)*
 
@@ -43,7 +43,7 @@ A trick-taking card game built with **Angular 19** featuring smooth animations, 
 
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/kutti-card-game.git
+git clone https://github.com/rkpatra2050/kutti-card-game.git
 cd kutti-card-game/card-game
 
 # Install dependencies
