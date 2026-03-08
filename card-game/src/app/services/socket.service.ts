@@ -87,6 +87,9 @@ export class SocketService {
         console.error('Connection error:', err.message);
         this._error.set('Cannot connect to server. Make sure the server is running.');
         this._connected.set(false);
+        this._connectPromise = null;
+        this.socket?.disconnect();
+        this.socket = null;
         reject(err);
       });
 
@@ -128,6 +131,9 @@ export class SocketService {
       setTimeout(() => {
         if (!this.socket?.connected) {
           this._error.set('Connection timed out. Is the server running?');
+          this._connectPromise = null;
+          this.socket?.disconnect();
+          this.socket = null;
           reject(new Error('Connection timeout'));
         }
       }, 10000);
@@ -153,19 +159,21 @@ export class SocketService {
 
   async createRoom(playerName: string, maxPlayers: number): Promise<void> {
     try {
+      this._error.set('');
       await this.connect();
       this.socket?.emit('createRoom', { playerName, maxPlayers });
     } catch {
-      this._error.set('Failed to connect to server.');
+      this._error.set('Failed to connect to server. Please make sure the server is running.');
     }
   }
 
   async joinRoom(roomCode: string, playerName: string): Promise<void> {
     try {
+      this._error.set('');
       await this.connect();
       this.socket?.emit('joinRoom', { roomCode, playerName });
     } catch {
-      this._error.set('Failed to connect to server.');
+      this._error.set('Failed to connect to server. Please make sure the server is running.');
     }
   }
 

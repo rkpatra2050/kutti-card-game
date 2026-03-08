@@ -103,7 +103,10 @@
       </div>
 
       @if (socketService.error()) {
-        <div class="error-msg">{{ socketService.error() }}</div>
+        <div class="error-msg">
+          ⚠️ {{ socketService.error() }}
+          <button class="retry-btn" (click)="onCreateRoom()" [disabled]="!playerName.trim()">Retry</button>
+        </div>
       }
     }
 
@@ -134,7 +137,10 @@
       </div>
 
       @if (socketService.error()) {
-        <div class="error-msg">{{ socketService.error() }}</div>
+        <div class="error-msg">
+          ⚠️ {{ socketService.error() }}
+          <button class="retry-btn" (click)="onJoinRoom()" [disabled]="!playerName.trim() || !joinCode.trim()">Retry</button>
+        </div>
       }
     }
 

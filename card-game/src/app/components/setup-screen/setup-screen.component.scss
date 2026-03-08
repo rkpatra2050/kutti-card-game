@@ -468,6 +468,31 @@
   margin-top: 16px;
   font-size: 0.9em;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  .retry-btn {
+    background: rgba(244, 67, 54, 0.25);
+    border: 1px solid rgba(244, 67, 54, 0.5);
+    color: #ef5350;
+    border-radius: 8px;
+    padding: 4px 14px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover:not(:disabled) {
+      background: rgba(244, 67, 54, 0.4);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
 }
 
 @keyframes float {

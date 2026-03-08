@@ -37,6 +37,14 @@ export class SetupScreenComponent {
         this.connecting = false;
       }
     });
+
+    // Reset connecting flag when an error occurs
+    effect(() => {
+      const error = this.socketService.error();
+      if (error) {
+        this.connecting = false;
+      }
+    });
   }
 
   onSelectPlayers(count: number): void {
