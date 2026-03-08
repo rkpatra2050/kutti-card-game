@@ -425,19 +425,19 @@ io.on('connection', (socket) => {
     const room = rooms.get(code);
 
     if (!room) {
-      socket.emit('error', { message: 'Room not found! Check the code and try again.' });
+      socket.emit('joinError', { message: 'Room not found! Check the code and try again.' });
       return;
     }
     if (room.phase !== 'waiting') {
-      socket.emit('error', { message: 'Game already started in this room!' });
+      socket.emit('joinError', { message: 'Game already started in this room!' });
       return;
     }
     if (room.players.length >= room.maxPlayers) {
-      socket.emit('error', { message: `Room is full! Max ${room.maxPlayers} players.` });
+      socket.emit('joinError', { message: `Room is full! Max ${room.maxPlayers} players.` });
       return;
     }
     if (room.players.some(p => p.socketId === socket.id)) {
-      socket.emit('error', { message: 'You are already in this room!' });
+      socket.emit('joinError', { message: 'You are already in this room!' });
       return;
     }
 
@@ -464,7 +464,7 @@ io.on('connection', (socket) => {
     const room = rooms.get(socket.roomCode);
     if (!room || socket.id !== room.hostSocketId) return;
     if (room.players.length < 2) {
-      socket.emit('error', { message: 'Need at least 2 players to start!' });
+      socket.emit('joinError', { message: 'Need at least 2 players to start!' });
       return;
     }
 
