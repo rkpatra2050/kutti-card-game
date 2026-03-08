@@ -309,18 +309,13 @@ function resolveKuttiTransfers(room) {
   const moreRounds = room.drawDeck.length >= room.players.length && room.kuttiRoundNumber < room.kuttiTotalRounds;
   room.kuttiTransfers = transfers;
 
-  // If there were transfers, show kutti-wait-next briefly so players can see what happened
+  // If there were transfers, show kutti-wait-next and wait for host to click Next Round
   // If no transfers, skip straight to next round with no delay
   if (transfers.length > 0) {
     room.phase = 'kutti-wait-next';
-    room.message = msg + (moreRounds ? '  👉 Next round starting soon...' : '  👉 Starting game soon...');
+    room.message = msg + (moreRounds ? '  👉 Click "Next Round" to continue.' : '  👉 Click "Start Playing!" to begin.');
     broadcastState(room);
-
-    // Show transfer result for 2.5s then auto-advance
-    setTimeout(() => {
-      if (room.phase !== 'kutti-wait-next') return;
-      advanceKuttiRound(room, moreRounds);
-    }, 2500);
+    // No auto-advance — host must click Next Round button
   } else {
     // No transfers — advance immediately, no screen shown
     advanceKuttiRound(room, moreRounds);
@@ -669,25 +664,14 @@ io.on('connection', (socket) => {
     }
   });
 
-  // PROCEED FROM KUTTI (next round or start playing)
+  // PROCEED FROM KUTTI (host clicks Next Round / Start Playing button)
   socket.on('proceedFromKutti', () => {
     const room = rooms.get(socket.roomCode);
     if (!room || socket.id !== room.hostSocketId) return;
     if (room.phase !== 'kutti-wait-next') return;
 
     const moreRounds = room.drawDeck.length >= room.players.length && room.kuttiRoundNumber < room.kuttiTotalRounds;
-
-    if (moreRounds) {
-      room.kuttiRoundNumber++;
-      room.kuttiRoundCards = new Map();
-      room.kuttiTransfers = [];
-      room.phase = 'kutti-draw';
-      room.message = `Kutti Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: Drawing cards...`;
-      broadcastState(room);
-      setTimeout(() => executeKuttiDraw(room), 600);
-    } else {
-      startPlayingPhase(room);
-    }
+    advanceKuttiRound(room, moreRounds);
   });
 
   // PLAY CARD

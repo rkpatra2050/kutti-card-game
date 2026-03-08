@@ -164,7 +164,11 @@
   border-radius: 14px; cursor: pointer; transition: all 0.3s ease;
   &:hover { transform: translateY(-2px); }
   &.pass-btn { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; font-size: 1.1em; padding: 14px 36px; }
+  &.next-btn { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; font-size: 1.1em; padding: 14px 40px;
+    &:hover { box-shadow: 0 8px 30px rgba(255, 215, 0, 0.4); }
+  }
 }
+.rank-hint { color: rgba(255, 255, 255, 0.45); font-size: 0.8em; font-style: italic; }
 .waiting-host {
   color: rgba(255, 255, 255, 0.5);
   font-style: italic;

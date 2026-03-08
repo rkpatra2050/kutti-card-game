@@ -103,12 +103,25 @@
                   <span class="from">{{ getPlayerName(transfer.fromPlayerId) }}</span>
                   <span class="arrow">→ {{ getCardDisplay(transfer.card) }} →</span>
                   <span class="to">{{ getPlayerName(transfer.toPlayerId) }}</span>
+                  <span class="rank-hint">(+1 rank higher)</span>
                 </div>
               }
             </div>
           }
 
-          <div class="waiting-host">⏳ Next round starting soon...</div>
+          @if (isHost()) {
+            <div class="kutti-actions">
+              <button class="kutti-btn next-btn" (click)="onProceedFromKutti()">
+                @if (hasMoreKuttiRounds) {
+                  ➡️ Next Round
+                } @else {
+                  🎮 Start Playing!
+                }
+              </button>
+            </div>
+          } @else {
+            <div class="waiting-host">⏳ Waiting for host to continue...</div>
+          }
         }
       </div>
     </div>
