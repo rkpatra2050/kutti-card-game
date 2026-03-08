@@ -37,11 +37,6 @@ jobs:
       - name: Build for production
         run: npx ng build --configuration production --base-href /kutti-card-game/
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-        with:
-          enablement: true
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
