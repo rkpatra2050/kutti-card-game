@@ -218,19 +218,19 @@ function executeKuttiDraw(room) {
   console.log('Kutti reveal - giverIds:', giverIds, 'cards:', [...room.kuttiRoundCards.entries()].map(([id,c]) => `P${id}:${c.rank}`));
 
   if (giverIds.length === 0) {
-    room.message = `Kutti Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: No passes needed, resolving in 3s...`;
+    room.message = `Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: No passes needed.`;
     broadcastState(room);
     setTimeout(() => {
       if (room.phase === 'kutti-reveal') resolveKuttiTransfers(room);
-    }, 3000);
+    }, 1500);
   } else {
     const giverNames = giverIds.map(id => room.players.find(p => p.id === id)?.name).join(', ');
-    room.message = `Kutti Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: ${giverNames} must pass their card!`;
+    room.message = `Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: ${giverNames} must pass their card!`;
     broadcastState(room);
-    // Auto-resolve fallback after 10s
+    // Auto-resolve fallback after 8s
     setTimeout(() => {
       if (room.phase === 'kutti-reveal') resolveKuttiTransfers(room);
-    }, 10000);
+    }, 8000);
   }
 }
 
@@ -288,7 +288,7 @@ function resolveKuttiTransfers(room) {
   room.message = msg + (moreRounds ? '  👉 Next round starting soon...' : '  👉 Starting game soon...');
   broadcastState(room);
 
-  // Auto-proceed to next round or playing phase after 3 seconds
+  // Auto-proceed to next round or playing phase after 1.5 seconds
   setTimeout(() => {
     if (room.phase !== 'kutti-wait-next') return;
     if (moreRounds) {

@@ -64,7 +64,7 @@
           } @else if (pendingPassIds().length > 0) {
             <div class="waiting-host">⏳ Waiting for {{ pendingPassNames() }} to pass...</div>
           } @else {
-            <div class="waiting-host">⏳ Resolving in a moment...</div>
+            <div class="waiting-host">⏳ {{ message || 'Resolving...' }}</div>
           }
         }
 
