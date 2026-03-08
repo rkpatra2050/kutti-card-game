@@ -11,6 +11,7 @@ export interface MultiplayerPlayer {
   isFinished: boolean;
   finishOrder: number;
   isMe: boolean;
+  isBot: boolean;
 }
 
 export interface MultiplayerState {

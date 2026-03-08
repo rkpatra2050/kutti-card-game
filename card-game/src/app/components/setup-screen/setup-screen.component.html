@@ -174,10 +174,15 @@
         @if (socketService.isHost()) {
           <button class="start-btn"
             (click)="onStartMultiplayerGame()"
-            [disabled]="socketService.players().length < 2">
+            [disabled]="socketService.players().length < 1">
             <span class="btn-icon">🎮</span>
             Start Game
           </button>
+          @if (socketService.players().length < (socketService.state()?.maxPlayers || maxPlayers)) {
+            <div class="bot-fill-note">
+              🤖 {{ (socketService.state()?.maxPlayers || maxPlayers) - socketService.players().length }} bot(s) will fill empty slots
+            </div>
+          }
         } @else {
           <div class="waiting-host-text">⏳ Waiting for the host to start the game...</div>
         }

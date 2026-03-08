@@ -79,6 +79,8 @@ const rooms = new Map(); // roomCode -> RoomState
   }
 */
 
+const BOT_NAMES = ['Bot Raju', 'Bot Meena', 'Bot Arjun', 'Bot Priya', 'Bot Kiran', 'Bot Dev'];
+
 function createRoom(hostSocketId, hostName, maxPlayers) {
   let code;
   do {
@@ -143,6 +145,7 @@ function getStateForPlayer(room, socketId) {
     isFinished: p.isFinished,
     finishOrder: p.finishOrder,
     isMe: p.socketId === socketId,
+    isBot: p.isBot || false,
   }));
 
   // Convert kuttiRoundCards Map to object
@@ -220,15 +223,38 @@ function executeKuttiDraw(room) {
     // No passes needed — skip the reveal screen entirely, resolve immediately
     resolveKuttiTransfers(room);
   } else {
-    // Passes needed — show reveal screen so givers can click Pass
+    // Passes needed — show reveal screen so human givers can click Pass
     room.phase = 'kutti-reveal';
     const giverNames = giverIds.map(id => room.players.find(p => p.id === id)?.name).join(', ');
     room.message = `Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: ${giverNames} must pass their card!`;
     broadcastState(room);
-    // Auto-resolve fallback after 8s in case player doesn't click
-    setTimeout(() => {
-      if (room.phase === 'kutti-reveal') resolveKuttiTransfers(room);
-    }, 8000);
+
+    // Auto-pass for any bots in the giver list immediately
+    const humanGivers = giverIds.filter(id => {
+      const p = room.players.find(p => p.id === id);
+      return p && !p.isBot;
+    });
+    const botGivers = giverIds.filter(id => {
+      const p = room.players.find(p => p.id === id);
+      return p && p.isBot;
+    });
+
+    // Remove bots from pending immediately
+    room.pendingPassIds = humanGivers;
+
+    if (humanGivers.length === 0) {
+      // All givers are bots → resolve right away
+      resolveKuttiTransfers(room);
+    } else {
+      // Some human givers remain, update message
+      const remainingNames = humanGivers.map(id => room.players.find(p => p.id === id)?.name).join(', ');
+      room.message = `Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: ${remainingNames} must pass their card!`;
+      broadcastState(room);
+      // Auto-resolve fallback after 8s in case player doesn't click
+      setTimeout(() => {
+        if (room.phase === 'kutti-reveal') resolveKuttiTransfers(room);
+      }, 8000);
+    }
   }
 }
 
@@ -349,6 +375,11 @@ function startPlayingPhase(room) {
   room.kuttiTransfers = [];
   room.message = `📊 ${summary}\n\n♠Q → ${players[startIdx].name} starts! Trick 1 begins.`;
   broadcastState(room);
+
+  // If starting player is a bot, schedule its play
+  if (players[startIdx].isBot) {
+    scheduleBotPlay(room);
+  }
 }
 
 function executePlay(room, playerId, card) {
@@ -373,6 +404,11 @@ function executePlay(room, playerId, card) {
     room.currentPlayerIndex = nextIdx;
     room.message = `${player.name} played ${getCardDisplay(card)}. ${room.players[nextIdx].name}'s turn.`;
     broadcastState(room);
+
+    // If next player is a bot, schedule its play
+    if (room.players[nextIdx].isBot) {
+      scheduleBotPlay(room);
+    }
   }
 }
 
@@ -451,6 +487,11 @@ function completeTrick(room) {
     room.phase = 'playing';
     room.message = `Trick ${room.trickNumber}: ${room.players[leadPlayer].name} leads.`;
     broadcastState(room);
+
+    // If next lead player is a bot, schedule its play
+    if (room.players[leadPlayer].isBot) {
+      scheduleBotPlay(room);
+    }
   }, 2500);
 }
 
@@ -464,7 +505,40 @@ function getNextActivePlayer(currentIndex, players) {
   return next;
 }
 
-// ─── SOCKET HANDLERS ─────────────────────────────────────
+// ─── BOT AI ──────────────────────────────────────────────
+
+function chooseBotCard(bot, room) {
+  const hand = bot.hand;
+  if (hand.length === 0) return null;
+
+  if (room.currentTrick.length === 0) {
+    // Leading: play lowest card
+    return hand[0];
+  }
+
+  // Following: try to play below the highest card in trick (avoid winning)
+  const highestRank = Math.max(...room.currentTrick.map(t => t.card.rank));
+  const lowerCards = hand.filter(c => c.rank < highestRank);
+  if (lowerCards.length > 0) {
+    return lowerCards[0];
+  }
+  // All cards are higher — play lowest available
+  return hand[0];
+}
+
+function scheduleBotPlay(room) {
+  const player = room.players[room.currentPlayerIndex];
+  if (!player || !player.isBot || player.isFinished || player.hand.length === 0) return;
+
+  setTimeout(() => {
+    // Re-check state hasn't changed
+    if (room.phase !== 'playing') return;
+    if (room.currentPlayerIndex !== player.id) return;
+
+    const card = chooseBotCard(player, room);
+    if (card) executePlay(room, player.id, card);
+  }, 700);
+}
 
 io.on('connection', (socket) => {
   console.log(`Player connected: ${socket.id}`);
@@ -528,8 +602,25 @@ io.on('connection', (socket) => {
       return;
     }
 
+    // Fill remaining slots with bots
+    const botNames = [...BOT_NAMES];
+    while (room.players.length < room.maxPlayers) {
+      const botName = botNames.shift() || `Bot ${room.players.length}`;
+      room.players.push({
+        socketId: null,  // null = bot
+        name: botName,
+        id: room.players.length,
+        hand: [],
+        collectedCards: [],
+        isFinished: false,
+        finishOrder: -1,
+        isBot: true,
+      });
+    }
+
+    const totalPlayers = room.players.length;
     const deck = shuffleDeck(createDeck());
-    const totalRounds = Math.floor(52 / room.players.length);
+    const totalRounds = Math.floor(52 / totalPlayers);
 
     room.drawDeck = deck;
     room.kuttiRoundNumber = 1;
@@ -547,7 +638,7 @@ io.on('connection', (socket) => {
     setTimeout(() => executeKuttiDraw(room), 800);
   });
 
-  // RESOLVE KUTTI (host clicks button)
+  // RESOLVE KUTTI (host clicks button) - kept for manual override
   socket.on('resolveKutti', () => {
     const room = rooms.get(socket.roomCode);
     if (!room || socket.id !== room.hostSocketId) return;
