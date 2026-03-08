@@ -1,0 +1,24 @@
+<div class="player-hand" [class.active-turn]="isCurrentTurn">
+  <div class="hand-label">
+    <span class="player-name">{{ player.name }}</span>
+    <span class="card-count">({{ player.hand.length }} cards)</span>
+    @if (player.collectedCards.length > 0) {
+      <span class="collected-count">📦 {{ player.collectedCards.length }} collected</span>
+    }
+  </div>
+  <div class="cards-row">
+    @for (card of player.hand; track card.id) {
+      <div class="card-slot" [style.z-index]="$index">
+        <app-card
+          [card]="card"
+          [faceUp]="player.isHuman"
+          [playable]="isCardPlayable(card)"
+          (cardClick)="onCardClick($event)">
+        </app-card>
+      </div>
+    }
+    @if (player.hand.length === 0) {
+      <div class="empty-hand">No cards left</div>
+    }
+  </div>
+</div>

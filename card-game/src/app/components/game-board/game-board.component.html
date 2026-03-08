@@ -1,0 +1,132 @@
+<div class="game-board">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="game-title">
+      <span class="title-icon">♠</span>
+      Kutti Card Game
+    </div>
+    <div class="message-bar"
+      [class.highlight]="phase() === GamePhase.TrickComplete || phase() === GamePhase.GameOver"
+      [class.reveal]="phase() === GamePhase.Reveal || phase() === GamePhase.InitialDraw">
+      {{ message() }}
+    </div>
+    <button class="new-game-btn" (click)="onNewGame()">🔄 New Game</button>
+  </div>
+
+  <!-- Reveal Phase Overlay -->
+  @if (phase() === GamePhase.InitialDraw || phase() === GamePhase.Reveal) {
+    <div class="reveal-overlay">
+      <div class="reveal-content">
+        <h2>🃏 Drawing Cards...</h2>
+        <p>Each player draws one card to decide who starts</p>
+        @if (phase() === GamePhase.Reveal) {
+          <div class="reveal-cards">
+            @for (player of players(); track player.id) {
+              <div class="reveal-card-item"
+                [class.winner]="highlightedPlayerIndex() === player.id"
+                [style.animation-delay]="($index * 0.2) + 's'">
+                <div class="reveal-player-name">{{ player.name }}</div>
+                @if (getInitialCard(player.id); as card) {
+                  <app-card [card]="card" [faceUp]="true"></app-card>
+                }
+                @if (highlightedPlayerIndex() === player.id) {
+                  <div class="starts-badge">⭐ STARTS!</div>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="dealing-animation">
+            <span class="dealing-icon">🎴</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="game-layout">
+    <!-- Left Side: Scoreboard -->
+    <div class="sidebar">
+      <app-scoreboard
+        [players]="players()"
+        [currentPlayerIndex]="currentPlayerIndex()"
+        [highlightedPlayerIndex]="highlightedPlayerIndex()">
+      </app-scoreboard>
+    </div>
+
+    <!-- Center: Game Area -->
+    <div class="center-area">
+      <!-- AI Players (opponents at top) -->
+      <div class="opponents-area">
+        @for (player of aiPlayers; track player.id) {
+          <div class="opponent-section" [class.active]="currentPlayerIndex() === player.id">
+            <div class="opponent-name" [class.turn-active]="currentPlayerIndex() === player.id">
+              <span class="bot-icon">🤖</span>
+              {{ player.name }}
+              @if (currentPlayerIndex() === player.id && phase() === GamePhase.Playing) {
+                <span class="thinking">thinking...</span>
+              }
+            </div>
+            <div class="opponent-cards">
+              @for (card of player.hand; track card.id; let i = $index) {
+                <div class="mini-card-back" [style.margin-left]="i > 0 ? '-12px' : '0'">
+                  <div class="mini-card-inner">🂠</div>
+                </div>
+              }
+              @if (player.hand.length === 0) {
+                <span class="no-cards">✓ Done</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Trick Area (center of table) -->
+      <app-trick-area
+        [currentTrick]="currentTrick()"
+        [players]="players()"
+        [leadSuit]="leadSuit()"
+        [trickNumber]="trickNumber()"
+        [totalTricks]="totalTricks()">
+      </app-trick-area>
+
+      <!-- Human Player (bottom) -->
+      @if (humanPlayer; as human) {
+        <app-player-hand
+          [player]="human"
+          [isCurrentTurn]="isHumanTurn()"
+          [validCards]="getValidCards(human)"
+          (cardPlayed)="onCardPlayed($event)">
+        </app-player-hand>
+      }
+    </div>
+  </div>
+
+  <!-- Game Over Overlay -->
+  @if (phase() === GamePhase.GameOver) {
+    <div class="game-over-overlay">
+      <div class="game-over-card">
+        <h2>🎉 Game Over!</h2>
+        <div class="final-scores">
+          @for (player of sortedPlayers; track player.id) {
+            <div class="final-score-row"
+              [class.winner]="player.collectedCards.length === getMinCollected()"
+              [class.loser]="player.collectedCards.length === getMaxCollected()">
+              <span class="position-icon">
+                @if (player.collectedCards.length === getMinCollected()) { 🏆 }
+                @else if (player.collectedCards.length === getMaxCollected()) { 🐕 }
+                @else { • }
+              </span>
+              <span class="final-name">{{ player.name }}</span>
+              <span class="final-collected">{{ player.collectedCards.length }} cards</span>
+              @if (player.collectedCards.length === getMaxCollected()) {
+                <span class="dog-label">DOG!</span>
+              }
+            </div>
+          }
+        </div>
+        <button class="play-again-btn" (click)="onNewGame()">🎮 Play Again</button>
+      </div>
+    </div>
+  }
+</div>

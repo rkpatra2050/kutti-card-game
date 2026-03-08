@@ -1,0 +1,89 @@
+.trick-area {
+  background: rgba(0, 100, 0, 0.25);
+  border: 2px solid rgba(0, 200, 0, 0.2);
+  border-radius: 20px;
+  padding: 24px;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+}
+
+.trick-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  .trick-info {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9em;
+    font-weight: 600;
+  }
+
+  .lead-suit {
+    color: #ffd700;
+    font-size: 1em;
+    font-weight: 700;
+    background: rgba(255, 215, 0, 0.15);
+    padding: 4px 14px;
+    border-radius: 20px;
+  }
+}
+
+.trick-cards {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.empty-trick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 1em;
+
+  .waiting-icon {
+    font-size: 3em;
+    animation: bob 2s ease-in-out infinite;
+  }
+}
+
+.played-card-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  animation: card-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
+  transform: translateY(20px);
+
+  .player-label {
+    font-size: 0.75em;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2px 10px;
+    border-radius: 10px;
+  }
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}

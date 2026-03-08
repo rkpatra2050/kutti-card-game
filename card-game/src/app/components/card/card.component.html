@@ -1,0 +1,23 @@
+<div [ngClass]="cardClasses" (click)="onClick()">
+  @if (faceUp) {
+    <div class="card-inner">
+      <div class="card-corner top-left">
+        <span class="rank">{{ rankDisplay }}</span>
+        <span class="suit">{{ suitSymbol }}</span>
+      </div>
+      <div class="card-center">
+        <span class="suit-large">{{ suitSymbol }}</span>
+      </div>
+      <div class="card-corner bottom-right">
+        <span class="rank">{{ rankDisplay }}</span>
+        <span class="suit">{{ suitSymbol }}</span>
+      </div>
+    </div>
+  } @else {
+    <div class="card-back">
+      <div class="card-back-pattern">
+        <span>🂠</span>
+      </div>
+    </div>
+  }
+</div>

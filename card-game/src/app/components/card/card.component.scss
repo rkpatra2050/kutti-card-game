@@ -1,0 +1,139 @@
+.card {
+  width: 80px;
+  height: 120px;
+  border-radius: 10px;
+  cursor: default;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  user-select: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  &.small {
+    width: 55px;
+    height: 82px;
+    border-radius: 6px;
+
+    .card-corner {
+      .rank {
+        font-size: 10px;
+      }
+      .suit {
+        font-size: 9px;
+      }
+    }
+
+    .card-center .suit-large {
+      font-size: 22px;
+    }
+  }
+
+  &.face-up {
+    background: linear-gradient(145deg, #ffffff, #f8f8f8);
+    border: 2px solid #d0d0d0;
+  }
+
+  &.face-down {
+    background: linear-gradient(145deg, #1a237e, #283593);
+    border: 2px solid #0d1657;
+
+    .card-back {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+
+      .card-back-pattern {
+        font-size: 40px;
+        opacity: 0.6;
+      }
+    }
+  }
+
+  &.playable {
+    cursor: pointer;
+    border-color: #4caf50;
+    box-shadow: 0 0 12px rgba(76, 175, 80, 0.5);
+
+    &:hover {
+      transform: translateY(-15px) scale(1.05);
+      box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6);
+      z-index: 10;
+    }
+  }
+
+  &.highlighted {
+    animation: pulse-glow 1.5s infinite;
+  }
+
+  &.red {
+    .rank, .suit, .suit-large {
+      color: #d32f2f;
+    }
+  }
+
+  &.black {
+    .rank, .suit, .suit-large {
+      color: #212121;
+    }
+  }
+
+  .card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    padding: 4px;
+  }
+
+  .card-corner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+
+    &.top-left {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+    }
+
+    &.bottom-right {
+      position: absolute;
+      bottom: 4px;
+      right: 6px;
+      transform: rotate(180deg);
+    }
+
+    .rank {
+      font-size: 14px;
+      font-weight: 800;
+      font-family: 'Georgia', serif;
+    }
+
+    .suit {
+      font-size: 12px;
+      margin-top: -2px;
+    }
+  }
+
+  .card-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    .suit-large {
+      font-size: 32px;
+    }
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.9);
+  }
+}

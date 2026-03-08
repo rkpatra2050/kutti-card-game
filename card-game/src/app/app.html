@@ -1,0 +1,5 @@
+@if (phase() === GamePhase.Setup) {
+  <app-setup-screen (startGame)="onStartGame($event)"></app-setup-screen>
+} @else {
+  <app-game-board></app-game-board>
+}

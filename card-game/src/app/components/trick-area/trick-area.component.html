@@ -1,0 +1,24 @@
+<div class="trick-area">
+  <div class="trick-header">
+    <span class="trick-info">Trick {{ trickNumber }} / {{ totalTricks }}</span>
+    @if (leadSuit) {
+      <span class="lead-suit">Lead: {{ leadSuitSymbol }}</span>
+    }
+  </div>
+
+  <div class="trick-cards">
+    @if (currentTrick.length === 0) {
+      <div class="empty-trick">
+        <span class="waiting-icon">🃏</span>
+        <span>Waiting for lead card...</span>
+      </div>
+    } @else {
+      @for (play of currentTrick; track play.card.id) {
+        <div class="played-card-container" [style.animation-delay]="($index * 0.15) + 's'">
+          <div class="player-label">{{ getPlayerName(play.playerId) }}</div>
+          <app-card [card]="play.card" [faceUp]="true"></app-card>
+        </div>
+      }
+    }
+  </div>
+</div>

@@ -1,0 +1,47 @@
+<div class="setup-container">
+  <div class="setup-card">
+    <div class="logo">
+      <div class="logo-cards">
+        <span class="logo-suit s1">♠</span>
+        <span class="logo-suit s2">♥</span>
+        <span class="logo-suit s3">♦</span>
+        <span class="logo-suit s4">♣</span>
+      </div>
+      <h1>Kutti Card Game</h1>
+      <p class="subtitle">A Trick-Taking Card Game</p>
+    </div>
+
+    <div class="rules-summary">
+      <h3>📜 How to Play</h3>
+      <ul>
+        <li>52 cards dealt equally among all players</li>
+        <li>Player with the highest ♠ Spade starts the game</li>
+        <li>You must follow the lead suit if you have it</li>
+        <li>Highest card of the lead suit wins the trick & collects all cards</li>
+        <li>🏆 Player with <strong>fewest collected cards</strong> wins!</li>
+        <li>🐕 Player with <strong>most collected cards</strong> is the Dog!</li>
+      </ul>
+    </div>
+
+    <div class="player-select">
+      <h3>Choose Number of Players</h3>
+      <div class="player-buttons">
+        @for (count of playerOptions; track count) {
+          <button
+            class="player-btn"
+            [class.selected]="selectedPlayers === count"
+            (click)="onSelectPlayers(count)">
+            <span class="count">{{ count }}</span>
+            <span class="label">Players</span>
+            <span class="cards-info">{{ getCardsPerPlayer(count) }} cards each</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <button class="start-btn" (click)="onStartGame()">
+      <span class="btn-icon">🎮</span>
+      Start Game
+    </button>
+  </div>
+</div>

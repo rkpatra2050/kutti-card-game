@@ -1,0 +1,28 @@
+<div class="scoreboard">
+  <h3 class="scoreboard-title">📊 Scoreboard</h3>
+  <div class="player-scores">
+    @for (player of players; track player.id) {
+      <div
+        class="player-score"
+        [class.current-turn]="player.id === currentPlayerIndex"
+        [class.highlighted]="player.id === highlightedPlayerIndex"
+        [class.is-human]="player.isHuman">
+        <div class="player-info">
+          <span class="player-icon">{{ player.isHuman ? '👤' : '🤖' }}</span>
+          <span class="player-name">{{ player.name }}</span>
+          @if (player.id === currentPlayerIndex) {
+            <span class="turn-badge">TURN</span>
+          }
+        </div>
+        <div class="player-stats">
+          <span class="stat hand-count" title="Cards in hand">
+            🃏 {{ player.hand.length }}
+          </span>
+          <span class="stat collected-count" title="Cards collected">
+            📦 {{ player.collectedCards.length }}
+          </span>
+        </div>
+      </div>
+    }
+  </div>
+</div>
