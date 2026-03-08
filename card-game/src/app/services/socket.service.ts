@@ -1,5 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
+import { environment } from '../../environments/environment';
 
 export interface MultiplayerPlayer {
   id: number;
@@ -58,7 +59,7 @@ export class SocketService {
   readonly phase = computed(() => this._state()?.phase ?? 'waiting');
 
   /** Connect and return a promise that resolves when actually connected */
-  connect(serverUrl: string = 'http://localhost:3000'): Promise<void> {
+  connect(serverUrl: string = environment.serverUrl): Promise<void> {
     // Already connected
     if (this.socket?.connected) {
       return Promise.resolve();
