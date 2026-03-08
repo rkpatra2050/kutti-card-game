@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, inject } from '@angular/core';
+import { Component, Output, EventEmitter, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SocketService } from '../../services/socket.service';
@@ -26,6 +26,18 @@ export class SetupScreenComponent {
   playerName = '';
   maxPlayers = 4;
   joinCode = '';
+  connecting = false;
+
+  constructor() {
+    // Sync mode with socket service screen signal
+    effect(() => {
+      const screen = this.socketService.screen();
+      if (screen === 'lobby') {
+        this.mode = 'lobby';
+        this.connecting = false;
+      }
+    });
+  }
 
   onSelectPlayers(count: number): void {
     this.selectedPlayers = count;
@@ -51,6 +63,7 @@ export class SetupScreenComponent {
     if (this.mode === 'lobby') {
       this.socketService.disconnect();
     }
+    this.connecting = false;
     this.mode = 'choose';
   }
 
@@ -64,21 +77,14 @@ export class SetupScreenComponent {
 
   onCreateRoom(): void {
     if (!this.playerName.trim()) return;
-    this.socketService.connect();
-    // Small delay for connection
-    setTimeout(() => {
-      this.socketService.createRoom(this.playerName.trim(), this.maxPlayers);
-      this.mode = 'lobby';
-    }, 500);
+    this.connecting = true;
+    this.socketService.createRoom(this.playerName.trim(), this.maxPlayers);
   }
 
   onJoinRoom(): void {
     if (!this.playerName.trim() || !this.joinCode.trim()) return;
-    this.socketService.connect();
-    setTimeout(() => {
-      this.socketService.joinRoom(this.joinCode.trim().toUpperCase(), this.playerName.trim());
-      this.mode = 'lobby';
-    }, 500);
+    this.connecting = true;
+    this.socketService.joinRoom(this.joinCode.trim().toUpperCase(), this.playerName.trim());
   }
 
   onStartMultiplayerGame(): void {

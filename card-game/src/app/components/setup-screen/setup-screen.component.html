@@ -92,15 +92,19 @@
           </div>
         </div>
 
-        <button class="start-btn create" (click)="onCreateRoom()" [disabled]="!playerName.trim()">
+        <button class="start-btn create" (click)="onCreateRoom()" [disabled]="!playerName.trim() || connecting">
           <span class="btn-icon">🏠</span>
-          Create Room
+          {{ connecting ? 'Connecting...' : 'Create Room' }}
         </button>
 
         <div class="switch-mode">
           Already have a code? <button class="link-btn" (click)="onShowJoin()">Join Room</button>
         </div>
       </div>
+
+      @if (socketService.error()) {
+        <div class="error-msg">{{ socketService.error() }}</div>
+      }
     }
 
     <!-- Join Room -->
@@ -119,9 +123,9 @@
             class="form-input code-input" style="text-transform: uppercase; letter-spacing: 4px; text-align: center;" />
         </div>
 
-        <button class="start-btn join" (click)="onJoinRoom()" [disabled]="!playerName.trim() || !joinCode.trim()">
+        <button class="start-btn join" (click)="onJoinRoom()" [disabled]="!playerName.trim() || !joinCode.trim() || connecting">
           <span class="btn-icon">🚪</span>
-          Join Room
+          {{ connecting ? 'Connecting...' : 'Join Room' }}
         </button>
 
         <div class="switch-mode">
@@ -146,7 +150,7 @@
         </div>
 
         <div class="players-list">
-          <h3>Players ({{ socketService.players().length }}/{{ maxPlayers }})</h3>
+          <h3>Players ({{ socketService.players().length }}/{{ socketService.state()?.maxPlayers || maxPlayers }})</h3>
           @for (p of socketService.players(); track p.id) {
             <div class="lobby-player" [class.is-me]="p.isMe">
               <span class="p-emoji">🎮</span>
