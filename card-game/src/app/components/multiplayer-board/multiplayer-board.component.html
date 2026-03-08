@@ -1,0 +1,297 @@
+<div class="game-board">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="game-title">
+      <span class="title-icon">♠</span>
+      Kutti Online
+    </div>
+    <div class="message-bar"
+      [class.highlight]="phase === 'trick-complete' || phase === 'game-over'"
+      [class.kutti]="isKuttiPhase">
+      {{ message }}
+    </div>
+    <div class="top-right">
+      <span class="room-badge">🔗 {{ state()?.code }}</span>
+      <button class="leave-btn" (click)="onLeave()">🚪 Leave</button>
+    </div>
+  </div>
+
+  <!-- ═══ KUTTI DISTRIBUTION PHASE ═══ -->
+  @if (isKuttiPhase) {
+    <div class="kutti-overlay">
+      <div class="kutti-content">
+        <div class="kutti-header">
+          <h2>🎴 Kutti Distribution</h2>
+          <div class="kutti-progress">
+            <span>Round {{ state()?.kuttiRoundNumber }} / {{ state()?.kuttiTotalRounds }}</span>
+            <span class="deck-count">🃏 {{ state()?.drawDeckSize }} cards left</span>
+          </div>
+        </div>
+
+        <!-- Drawing Phase -->
+        @if (phase === 'kutti-draw') {
+          <div class="kutti-drawing">
+            <div class="dealing-icon">🎴</div>
+            <p>Drawing cards for each player...</p>
+          </div>
+        }
+
+        <!-- Reveal Phase -->
+        @if (phase === 'kutti-reveal') {
+          <div class="kutti-cards-grid">
+            @for (player of players; track player.id) {
+              <div class="kutti-card-item" [style.animation-delay]="($index * 0.15) + 's'">
+                <div class="kutti-player-name" [class.is-me]="player.isMe">
+                  {{ player.name }} {{ player.isMe ? '(You)' : '' }}
+                </div>
+                @if (getKuttiCard(player.id); as card) {
+                  <app-card [card]="card" [faceUp]="true"></app-card>
+                }
+                <div class="kutti-hand-count">{{ player.isMe ? player.hand.length : player.handCount }} cards</div>
+              </div>
+            }
+          </div>
+
+          @if (isHost()) {
+            <div class="kutti-actions">
+              <button class="kutti-btn resolve-btn" (click)="onResolveKutti()">
+                🔍 Resolve Kutti
+              </button>
+            </div>
+          } @else {
+            <div class="waiting-host">⏳ Waiting for host to resolve...</div>
+          }
+        }
+
+        <!-- Wait Next Phase -->
+        @if (phase === 'kutti-wait-next') {
+          <div class="kutti-cards-grid">
+            @for (player of players; track player.id) {
+              <div class="kutti-card-item"
+                [class.giver]="isTransferGiver(player.id)"
+                [class.receiver]="isTransferReceiver(player.id)"
+                [style.animation-delay]="($index * 0.15) + 's'">
+                <div class="kutti-player-name" [class.is-me]="player.isMe">
+                  {{ player.name }} {{ player.isMe ? '(You)' : '' }}
+                </div>
+                @if (getKuttiCard(player.id); as card) {
+                  <app-card [card]="card" [faceUp]="true"></app-card>
+                }
+                <div class="kutti-hand-count">{{ player.isMe ? player.hand.length : player.handCount }} cards</div>
+                @if (isTransferGiver(player.id)) {
+                  <div class="transfer-badge give">↗ GIVES</div>
+                }
+                @if (isTransferReceiver(player.id)) {
+                  <div class="transfer-badge receive">↙ GETS</div>
+                }
+              </div>
+            }
+          </div>
+
+          @if (kuttiTransfers.length > 0) {
+            <div class="transfer-info">
+              <h4>🔄 Kutti Transfers:</h4>
+              @for (transfer of kuttiTransfers; track $index) {
+                <div class="transfer-line">
+                  <span class="from">{{ getPlayerName(transfer.fromPlayerId) }}</span>
+                  <span class="arrow">→ {{ getCardDisplay(transfer.card) }} →</span>
+                  <span class="to">{{ getPlayerName(transfer.toPlayerId) }}</span>
+                </div>
+              }
+            </div>
+          }
+
+          @if (isHost()) {
+            <div class="kutti-actions">
+              @if (hasMoreKuttiRounds) {
+                <button class="kutti-btn next-btn" (click)="onProceedFromKutti()">
+                  ➡️ Next Round
+                </button>
+              } @else {
+                <button class="kutti-btn start-playing-btn" (click)="onProceedFromKutti()">
+                  🎮 Start Playing!
+                </button>
+              }
+            </div>
+          } @else {
+            <div class="waiting-host">⏳ Waiting for host...</div>
+          }
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ═══ PLAYING PHASE ═══ -->
+  @if (!isKuttiPhase && phase !== 'game-over') {
+    <div class="game-layout">
+      <!-- Sidebar: Scoreboard -->
+      <div class="sidebar">
+        <div class="scoreboard">
+          <h3 class="scoreboard-title">📊 Players</h3>
+          @for (player of players; track player.id) {
+            <div class="score-row"
+              [class.current-turn]="player.id === currentPlayerIndex"
+              [class.is-me]="player.isMe"
+              [class.finished]="player.isFinished">
+              <span class="p-icon">
+                @if (player.isFinished && player.finishOrder === 1) { 🏆 }
+                @else if (player.isMe) { 👤 }
+                @else if (player.isFinished) { ✅ }
+                @else { 🎮 }
+              </span>
+              <span class="p-name">{{ player.name }}{{ player.isMe ? ' (You)' : '' }}</span>
+              @if (player.id === currentPlayerIndex && !player.isFinished) {
+                <span class="turn-badge">TURN</span>
+              }
+              @if (player.isFinished) {
+                <span class="finish-badge">#{{ player.finishOrder }}</span>
+              }
+              <div class="p-stats">
+                <span>🃏 {{ player.isMe ? player.hand.length : player.handCount }}</span>
+                <span>📦 {{ player.collectedCards.length }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Center -->
+      <div class="center-area">
+        <!-- Opponents -->
+        <div class="opponents-area">
+          @for (player of otherPlayers; track player.id) {
+            <div class="opponent-section"
+              [class.active]="currentPlayerIndex === player.id"
+              [class.finished]="player.isFinished">
+              <div class="opponent-name" [class.turn-active]="currentPlayerIndex === player.id">
+                <span class="bot-icon">{{ player.isFinished ? '✅' : '🎮' }}</span>
+                {{ player.name }}
+                @if (player.isFinished) {
+                  <span class="finish-badge">#{{ player.finishOrder }}</span>
+                }
+                @if (currentPlayerIndex === player.id && phase === 'playing' && !player.isFinished) {
+                  <span class="thinking">playing...</span>
+                }
+              </div>
+              <div class="opponent-cards">
+                @for (i of [].constructor(player.handCount); track $index) {
+                  <div class="mini-card-back" [style.margin-left]="$index > 0 ? '-12px' : '0'">
+                    <div class="mini-card-inner">🂠</div>
+                  </div>
+                }
+                @if (player.handCount === 0 && player.isFinished) {
+                  <span class="no-cards finished-text">✓ Finished</span>
+                } @else if (player.handCount === 0) {
+                  <span class="no-cards">No cards</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Trick Area -->
+        <div class="trick-area">
+          <div class="trick-header">
+            <span class="trick-info">Trick {{ trickNumber }}</span>
+          </div>
+          <div class="trick-cards">
+            @if (currentTrick.length === 0) {
+              <div class="empty-trick">
+                <span class="waiting-icon">🃏</span>
+                <span>Waiting for lead card...</span>
+              </div>
+            } @else {
+              @for (play of currentTrick; track play.card.id) {
+                <div class="played-card-container" [style.animation-delay]="($index * 0.15) + 's'">
+                  <div class="player-label">{{ getPlayerName(play.playerId) }}</div>
+                  <app-card [card]="play.card" [faceUp]="true"></app-card>
+                </div>
+              }
+            }
+          </div>
+        </div>
+
+        <!-- My Hand -->
+        @if (myPlayer(); as me) {
+          <div class="my-hand" [class.active-turn]="isMyTurn" [class.finished]="me.isFinished">
+            <div class="hand-label">
+              <span class="player-name">{{ me.name }} (You)</span>
+              <span class="card-count">({{ me.hand.length }} cards)</span>
+              @if (me.collectedCards.length > 0) {
+                <span class="collected-count">📦 {{ me.collectedCards.length }}</span>
+              }
+              @if (me.isFinished) {
+                <span class="finished-badge">✅ #{{ me.finishOrder }}</span>
+              }
+            </div>
+            <div class="cards-row">
+              @for (card of me.hand; track card.id) {
+                <div class="card-slot" [style.z-index]="$index">
+                  <app-card
+                    [card]="card"
+                    [faceUp]="true"
+                    [playable]="isMyTurn"
+                    (cardClick)="onCardClick($event)">
+                  </app-card>
+                </div>
+              }
+              @if (me.hand.length === 0) {
+                <div class="empty-hand">
+                  @if (me.isFinished) { 🎉 Done! } @else { No cards }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ═══ GAME OVER ═══ -->
+  @if (phase === 'game-over') {
+    <div class="game-over-overlay">
+      <div class="game-over-card">
+        <h2>🎉 Game Over!</h2>
+
+        <div class="final-results">
+          @if (winner; as w) {
+            <div class="result-banner winner-banner">
+              <span class="result-emoji">🏆</span>
+              <div>
+                <div class="result-title">WINNER</div>
+                <div class="result-name">{{ w.name }}</div>
+              </div>
+            </div>
+          }
+          @if (dock; as d) {
+            <div class="result-banner dock-banner">
+              <span class="result-emoji">🐕</span>
+              <div>
+                <div class="result-title">DOCK</div>
+                <div class="result-name">{{ d.name }}</div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="final-rankings">
+          <h3>Final Rankings</h3>
+          @for (player of sortedPlayers; track player.id) {
+            <div class="ranking-row"
+              [class.is-winner]="winner?.id === player.id"
+              [class.is-dock]="dock?.id === player.id">
+              <span class="rank-num">
+                @if (winner?.id === player.id) { 🏆 }
+                @else if (dock?.id === player.id) { 🐕 }
+                @else { #{{ player.finishOrder }} }
+              </span>
+              <span class="rank-name">{{ player.name }}{{ player.isMe ? ' (You)' : '' }}</span>
+            </div>
+          }
+        </div>
+
+        <button class="play-again-btn" (click)="onLeave()">🚪 Leave Room</button>
+      </div>
+    </div>
+  }
+</div>

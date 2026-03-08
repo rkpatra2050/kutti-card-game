@@ -1,5 +1,6 @@
 <div class="setup-container">
   <div class="setup-card">
+    <!-- Logo always shown -->
     <div class="logo">
       <div class="logo-cards">
         <span class="logo-suit s1">♠</span>
@@ -11,37 +12,171 @@
       <p class="subtitle">A Strategic Card Game</p>
     </div>
 
-    <div class="rules-summary">
-      <h3>📜 How to Play</h3>
-      <ul>
-        <li><strong>Phase 1 — Kutti Distribution:</strong> Cards are drawn one at a time for each player.</li>
-        <li>If a drawn card is exactly 1 rank higher than another player's card, the lower card transfers to the higher card's player!</li>
-        <li><strong>Phase 2 — Trick Playing:</strong> Player with ♠Q starts. Play any card from your hand.</li>
-        <li>Highest rank wins the trick (no suit restriction) & collects all cards.</li>
-        <li>🏆 First player to empty their hand <strong>WINS!</strong></li>
-        <li>🐕 Last player holding cards is the <strong>Dock (Dog)!</strong></li>
-      </ul>
-    </div>
+    <!-- Mode Choose -->
+    @if (mode === 'choose') {
+      <div class="rules-summary">
+        <h3>📜 How to Play</h3>
+        <ul>
+          <li><strong>Phase 1 — Kutti Distribution:</strong> Cards are drawn one at a time for each player.</li>
+          <li>If a drawn card is exactly 1 rank higher than another player's card, the lower card transfers to the higher card's player!</li>
+          <li><strong>Phase 2 — Trick Playing:</strong> Player with ♠Q starts. Play any card from your hand.</li>
+          <li>Highest rank wins the trick (no suit restriction) & collects all cards.</li>
+          <li>🏆 First player to empty their hand <strong>WINS!</strong></li>
+          <li>🐕 Last player holding cards is the <strong>Dock (Dog)!</strong></li>
+        </ul>
+      </div>
 
-    <div class="player-select">
-      <h3>Choose Number of Players</h3>
-      <div class="player-buttons">
-        @for (count of playerOptions; track count) {
-          <button
-            class="player-btn"
-            [class.selected]="selectedPlayers === count"
-            (click)="onSelectPlayers(count)">
-            <span class="count">{{ count }}</span>
-            <span class="label">Players</span>
-            <span class="cards-info">{{ getCardsPerPlayer(count) }} cards each</span>
+      <div class="mode-select">
+        <h3>Choose Game Mode</h3>
+        <div class="mode-buttons">
+          <button class="mode-btn bot-btn" (click)="onChooseBot()">
+            <span class="mode-icon">🤖</span>
+            <span class="mode-title">Play with Bot</span>
+            <span class="mode-desc">Play against AI opponents</span>
           </button>
+          <button class="mode-btn friend-btn" (click)="onChooseFriend()">
+            <span class="mode-icon">👥</span>
+            <span class="mode-title">Play with Friend</span>
+            <span class="mode-desc">Create or join a room</span>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Bot Mode -->
+    @if (mode === 'bot') {
+      <button class="back-btn" (click)="onBack()">← Back</button>
+
+      <div class="player-select">
+        <h3>Choose Number of Players</h3>
+        <div class="player-buttons">
+          @for (count of playerOptions; track count) {
+            <button
+              class="player-btn"
+              [class.selected]="selectedPlayers === count"
+              (click)="onSelectPlayers(count)">
+              <span class="count">{{ count }}</span>
+              <span class="label">Players</span>
+              <span class="cards-info">{{ getCardsPerPlayer(count) }} cards each</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <button class="start-btn" (click)="onStartBotGame()">
+        <span class="btn-icon">🤖</span>
+        Start Game
+      </button>
+    }
+
+    <!-- Create Room -->
+    @if (mode === 'create') {
+      <button class="back-btn" (click)="onBack()">← Back</button>
+
+      <div class="multiplayer-form">
+        <h3>Create a Room</h3>
+        <div class="form-group">
+          <label>Your Name</label>
+          <input type="text" [(ngModel)]="playerName" placeholder="Enter your name" maxlength="20" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>Max Players</label>
+          <div class="player-buttons small">
+            @for (count of playerOptions; track count) {
+              <button class="player-btn small"
+                [class.selected]="maxPlayers === count"
+                (click)="maxPlayers = count">
+                <span class="count">{{ count }}</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <button class="start-btn create" (click)="onCreateRoom()" [disabled]="!playerName.trim()">
+          <span class="btn-icon">🏠</span>
+          Create Room
+        </button>
+
+        <div class="switch-mode">
+          Already have a code? <button class="link-btn" (click)="onShowJoin()">Join Room</button>
+        </div>
+      </div>
+    }
+
+    <!-- Join Room -->
+    @if (mode === 'join') {
+      <button class="back-btn" (click)="onBack()">← Back</button>
+
+      <div class="multiplayer-form">
+        <h3>Join a Room</h3>
+        <div class="form-group">
+          <label>Your Name</label>
+          <input type="text" [(ngModel)]="playerName" placeholder="Enter your name" maxlength="20" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>Room Code</label>
+          <input type="text" [(ngModel)]="joinCode" placeholder="e.g. ABC12" maxlength="5"
+            class="form-input code-input" style="text-transform: uppercase; letter-spacing: 4px; text-align: center;" />
+        </div>
+
+        <button class="start-btn join" (click)="onJoinRoom()" [disabled]="!playerName.trim() || !joinCode.trim()">
+          <span class="btn-icon">🚪</span>
+          Join Room
+        </button>
+
+        <div class="switch-mode">
+          Want to host? <button class="link-btn" (click)="onShowCreate()">Create Room</button>
+        </div>
+      </div>
+
+      @if (socketService.error()) {
+        <div class="error-msg">{{ socketService.error() }}</div>
+      }
+    }
+
+    <!-- Lobby -->
+    @if (mode === 'lobby') {
+      <button class="back-btn" (click)="onBack()">← Leave Lobby</button>
+
+      <div class="lobby">
+        <div class="room-code-display">
+          <span class="room-label">Room Code</span>
+          <span class="room-code">{{ socketService.roomCode() }}</span>
+          <span class="room-hint">Share this code with friends!</span>
+        </div>
+
+        <div class="players-list">
+          <h3>Players ({{ socketService.players().length }}/{{ maxPlayers }})</h3>
+          @for (p of socketService.players(); track p.id) {
+            <div class="lobby-player" [class.is-me]="p.isMe">
+              <span class="p-emoji">🎮</span>
+              <span class="p-name">{{ p.name }}</span>
+              @if (p.isMe) {
+                <span class="you-badge">You</span>
+              }
+            </div>
+          }
+          @if (socketService.players().length < 2) {
+            <div class="waiting-text">Waiting for players to join...</div>
+          }
+        </div>
+
+        @if (socketService.isHost()) {
+          <button class="start-btn"
+            (click)="onStartMultiplayerGame()"
+            [disabled]="socketService.players().length < 2">
+            <span class="btn-icon">🎮</span>
+            Start Game
+          </button>
+        } @else {
+          <div class="waiting-host-text">⏳ Waiting for the host to start the game...</div>
         }
       </div>
-    </div>
 
-    <button class="start-btn" (click)="onStartGame()">
-      <span class="btn-icon">🎮</span>
-      Start Game
-    </button>
+      @if (socketService.error()) {
+        <div class="error-msg">{{ socketService.error() }}</div>
+      }
+    }
   </div>
 </div>
+

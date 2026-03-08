@@ -1,4 +1,6 @@
-@if (phase() === GamePhase.Setup) {
+@if (multiplayerScreen() === 'game') {
+  <app-multiplayer-board></app-multiplayer-board>
+} @else if (phase() === GamePhase.Setup) {
   <app-setup-screen (startGame)="onStartGame($event)"></app-setup-screen>
 } @else {
   <app-game-board></app-game-board>
