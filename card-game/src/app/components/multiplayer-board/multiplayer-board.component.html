@@ -42,7 +42,7 @@
             @for (player of players; track player.id) {
               <div class="kutti-card-item" [style.animation-delay]="($index * 0.15) + 's'">
                 <div class="kutti-player-name" [class.is-me]="player.isMe">
-                  {{ player.name }} {{ player.isMe ? '(You)' : '' }}
+                  {{ player.isBot ? '🤖' : '' }} {{ player.name }} {{ player.isMe ? '(You)' : '' }}
                 </div>
                 @if (getKuttiCard(player.id); as card) {
                   <app-card [card]="card" [faceUp]="true"></app-card>
@@ -55,6 +55,7 @@
           </div>
 
           @if (isMustPass()) {
+            <!-- Human is a giver — show Pass button -->
             <div class="kutti-actions">
               <div class="pass-info">⚠️ Your card must be passed! Click below to confirm.</div>
               <button class="kutti-btn pass-btn" (click)="onPassKuttiCard()">
@@ -62,9 +63,17 @@
               </button>
             </div>
           } @else if (pendingPassIds().length > 0) {
+            <!-- Waiting for other humans to pass -->
             <div class="waiting-host">⏳ Waiting for {{ pendingPassNames() }} to pass...</div>
+          } @else if (isHost()) {
+            <!-- No passes needed or all bots handled — host clicks Resolve -->
+            <div class="kutti-actions">
+              <button class="kutti-btn resolve-btn" (click)="onResolveKutti()">
+                🔍 Resolve Kutti
+              </button>
+            </div>
           } @else {
-            <div class="waiting-host">⏳ {{ message || 'Resolving...' }}</div>
+            <div class="waiting-host">⏳ Waiting for host to resolve...</div>
           }
         }
 

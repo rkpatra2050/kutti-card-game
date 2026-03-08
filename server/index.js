@@ -215,42 +215,30 @@ function executeKuttiDraw(room) {
   }
 
   const giverIds = findKuttiGivers(room.kuttiRoundCards);
+  room.phase = 'kutti-reveal';
   room.pendingPassIds = giverIds;
 
   console.log('Kutti reveal - giverIds:', giverIds, 'cards:', [...room.kuttiRoundCards.entries()].map(([id,c]) => `P${id}:${c.rank}`));
 
   if (giverIds.length === 0) {
-    // No passes needed — skip the reveal screen entirely, resolve immediately
-    resolveKuttiTransfers(room);
-  } else {
-    // Passes needed — show reveal screen so human givers can click Pass
-    room.phase = 'kutti-reveal';
-    const giverNames = giverIds.map(id => room.players.find(p => p.id === id)?.name).join(', ');
-    room.message = `Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: ${giverNames} must pass their card!`;
+    // No passes needed — show cards then wait for host to click Resolve
+    room.message = `Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: Cards revealed! Click "Resolve Kutti".`;
     broadcastState(room);
-
-    // Auto-pass for any bots in the giver list immediately
-    const humanGivers = giverIds.filter(id => {
-      const p = room.players.find(p => p.id === id);
-      return p && !p.isBot;
-    });
-    const botGivers = giverIds.filter(id => {
-      const p = room.players.find(p => p.id === id);
-      return p && p.isBot;
-    });
-
-    // Remove bots from pending immediately
+  } else {
+    // Passes needed — auto-pass bots, wait for human givers
+    const humanGivers = giverIds.filter(id => !room.players.find(p => p.id === id)?.isBot);
     room.pendingPassIds = humanGivers;
 
     if (humanGivers.length === 0) {
-      // All givers are bots → resolve right away
-      resolveKuttiTransfers(room);
-    } else {
-      // Some human givers remain, update message
-      const remainingNames = humanGivers.map(id => room.players.find(p => p.id === id)?.name).join(', ');
-      room.message = `Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: ${remainingNames} must pass their card!`;
+      // All givers are bots — resolve immediately after brief reveal
+      const giverNames = giverIds.map(id => room.players.find(p => p.id === id)?.name).join(', ');
+      room.message = `Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: ${giverNames} must pass! Click "Resolve Kutti".`;
       broadcastState(room);
-      // Auto-resolve fallback after 8s in case player doesn't click
+    } else {
+      const humanGiverNames = humanGivers.map(id => room.players.find(p => p.id === id)?.name).join(', ');
+      room.message = `Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: ${humanGiverNames} must pass their card!`;
+      broadcastState(room);
+      // Auto-resolve fallback after 8s
       setTimeout(() => {
         if (room.phase === 'kutti-reveal') resolveKuttiTransfers(room);
       }, 8000);
@@ -592,17 +580,13 @@ io.on('connection', (socket) => {
   socket.on('startGame', () => {
     const room = rooms.get(socket.roomCode);
     if (!room || socket.id !== room.hostSocketId) return;
-    if (room.players.length < 2) {
-      socket.emit('joinError', { message: 'Need at least 2 players to start!' });
-      return;
-    }
 
-    // Fill remaining slots with bots
+    // Fill remaining slots with bots (always fill to maxPlayers)
     const botNames = [...BOT_NAMES];
     while (room.players.length < room.maxPlayers) {
       const botName = botNames.shift() || `Bot ${room.players.length}`;
       room.players.push({
-        socketId: null,  // null = bot
+        socketId: null,
         name: botName,
         id: room.players.length,
         hand: [],
@@ -611,6 +595,11 @@ io.on('connection', (socket) => {
         finishOrder: -1,
         isBot: true,
       });
+    }
+
+    if (room.players.length < 2) {
+      socket.emit('joinError', { message: 'Need at least 2 players to start!' });
+      return;
     }
 
     const totalPlayers = room.players.length;
@@ -633,11 +622,13 @@ io.on('connection', (socket) => {
     setTimeout(() => executeKuttiDraw(room), 800);
   });
 
-  // RESOLVE KUTTI (host clicks button) - kept for manual override
+  // RESOLVE KUTTI (host clicks Resolve Kutti button)
   socket.on('resolveKutti', () => {
     const room = rooms.get(socket.roomCode);
     if (!room || socket.id !== room.hostSocketId) return;
     if (room.phase !== 'kutti-reveal') return;
+    // Clear any remaining pending (bots auto-pass)
+    room.pendingPassIds = [];
     resolveKuttiTransfers(room);
   });
 
