@@ -171,6 +171,7 @@ function getStateForPlayer(room, socketId) {
     maxPlayers: room.maxPlayers,
     hostSocketId: room.hostSocketId,
     isHost: socketId === room.hostSocketId,
+    pendingPassIds: room.pendingPassConfirmations ? [...room.pendingPassConfirmations] : [],
     message: room.message || '',
   };
 }
@@ -193,16 +194,36 @@ function executeKuttiDraw(room) {
     room.kuttiRoundCards.set(player.id, card);
   }
 
-  room.phase = 'kutti-reveal';
-  room.message = `Kutti Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: Cards revealed! Check if you need to pass your card.`;
-  broadcastState(room);
-
-  // Auto-resolve after 3 seconds if no transfers needed, else wait for passes
-  setTimeout(() => {
-    if (room.phase === 'kutti-reveal') {
-      resolveKuttiTransfers(room);
+  // Pre-calculate if any transfers are needed
+  const entries = Array.from(room.kuttiRoundCards.entries());
+  const giverIds = new Set();
+  for (let i = 0; i < entries.length; i++) {
+    for (let j = 0; j < entries.length; j++) {
+      if (i === j) continue;
+      const [idHigh, cardHigh] = entries[i];
+      const [idLow, cardLow] = entries[j];
+      if (cardHigh.rank === cardLow.rank + 1 && !giverIds.has(idLow)) {
+        giverIds.add(idLow);
+      }
     }
-  }, 3000);
+  }
+
+  room.phase = 'kutti-reveal';
+  room.pendingPassConfirmations = new Set(giverIds); // track who still needs to confirm
+
+  if (giverIds.size === 0) {
+    // No transfers needed — auto-resolve after 3 seconds
+    room.message = `Kutti Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: Cards revealed! No passes needed, auto-resolving...`;
+    broadcastState(room);
+    setTimeout(() => {
+      if (room.phase === 'kutti-reveal') resolveKuttiTransfers(room);
+    }, 3000);
+  } else {
+    // Transfers needed — wait for givers to confirm
+    const giverNames = [...giverIds].map(id => room.players.find(p => p.id === id)?.name).join(', ');
+    room.message = `Kutti Round ${room.kuttiRoundNumber}/${room.kuttiTotalRounds}: Cards revealed! ${giverNames} must pass their card!`;
+    broadcastState(room);
+  }
 }
 
 function resolveKuttiTransfers(room) {
@@ -516,6 +537,32 @@ io.on('connection', (socket) => {
     if (!room || socket.id !== room.hostSocketId) return;
     if (room.phase !== 'kutti-reveal') return;
     resolveKuttiTransfers(room);
+  });
+
+  // PASS KUTTI CARD - giver player confirms passing their card
+  socket.on('passKuttiCard', () => {
+    const room = rooms.get(socket.roomCode);
+    if (!room || room.phase !== 'kutti-reveal') return;
+
+    const player = getPlayerBySocket(room, socket.id);
+    if (!player) return;
+
+    // Remove this player from pending confirmations
+    if (room.pendingPassConfirmations) {
+      room.pendingPassConfirmations.delete(player.id);
+    }
+
+    // If all givers have confirmed, resolve immediately
+    if (!room.pendingPassConfirmations || room.pendingPassConfirmations.size === 0) {
+      resolveKuttiTransfers(room);
+    } else {
+      // Update message showing who still needs to confirm
+      const remaining = [...room.pendingPassConfirmations]
+        .map(id => room.players.find(p => p.id === id)?.name)
+        .join(', ');
+      room.message = `Waiting for ${remaining} to pass their card...`;
+      broadcastState(room);
+    }
   });
 
   // PROCEED FROM KUTTI (next round or start playing)

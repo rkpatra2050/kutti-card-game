@@ -31,6 +31,7 @@ export interface MultiplayerState {
   maxPlayers: number;
   hostSocketId: string;
   isHost: boolean;
+  pendingPassIds: number[];
   message: string;
 }
 
